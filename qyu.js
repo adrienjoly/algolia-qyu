@@ -110,12 +110,14 @@ class Qyu extends EventEmitter {
   }
 
   _processJob() {
-    log.trace('Qyu:_processJob()');
+    log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
     if (this.started && this.running === 0) {
       if (this.jobs.length) {
         const priority = this.jobs.reduce((lowest, job) => Math.min(lowest, job.opts.priority), LOWEST_PRIO);
-        const nextJob = this.jobs.find(job => job.opts.priority === priority);
-        nextJob.job()
+        this.runningJob = this.jobs.find(job => job.opts.priority === priority);
+        this.running = 1;
+        log.debug('Qyu.runningJob = ', this.runningJob);
+        this.runningJob.job()
           .then(this._jobEnded.bind(this))
           .catch(this._jobEndedWithError.bind(this));
       } else {
@@ -166,6 +168,7 @@ class Qyu extends EventEmitter {
     log.trace('Qyu:start()');
     new Promise((resolve, reject) => {
       this.started = true;
+      this._processJob();
       resolve();
     });
   }
