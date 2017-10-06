@@ -3,7 +3,9 @@
 const EventEmitter = require('events');
 
 const LOG_LEVEL = 'trace';
-const log = require('simple-node-logger').createSimpleLogger();
+const log = require('simple-node-logger').createSimpleLogger({
+  timestampFormat: '[[QYU-LOG]]'
+});
 log.setLevel(LOG_LEVEL);
 log.trace(`Qyu ${LOG_LEVEL} logging to standard output`);
 
