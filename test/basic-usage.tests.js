@@ -1,6 +1,9 @@
 var assert = require('assert');
 const qyu = require('../qyu');
 
+// returns an array without duplicates
+const dedup = a => [...new Set(a)];
+
 // helper to create a logger (for diagnostics)
 function createLogger() {
   const log = require('simple-node-logger').createSimpleLogger(/*{
@@ -16,6 +19,21 @@ const throwOnErrorEvent = err => { throw err.error; };
 // helper to resolve a promise after several events were fired
 function received(ee, eventName){
   return new Promise(resolve => ee.on(eventName, resolve));
+}
+
+// promise that resolves if events were received as listed in the array
+function receivedInOrder(ee, expectedEventNames) {
+  var remainingEventNames = expectedEventNames.slice(); // clone
+  return new Promise((resolve, reject) => {
+    dedup(expectedEventNames).forEach(eventName => ee.on(eventName, () => {
+      const expected = remainingEventNames.shift();
+      if (eventName !== expected) {
+        reject(`expected ${expected}, received ${eventName}`);
+      } else if (remainingEventNames.length === 0) {
+        resolve();
+      }
+    }));
+  });
 }
 
 // helper: wait
@@ -64,7 +82,7 @@ describe('basic qyu usage', function() {
   });
 
   it('done and drain events should fire after running one job', function() {
-    const q = qyu({ log: createLogger() });
+    const q = qyu(/*{ log: createLogger() }*/);
     q.on('error', throwOnErrorEvent);
     q.push(waitAndSayHello);
     return Promise.all([
@@ -75,13 +93,12 @@ describe('basic qyu usage', function() {
   });
 
   it('done and drain events should fire after running two jobs', function() {
-    const q = qyu({ log: createLogger() });
+    const q = qyu();
     q.on('error', throwOnErrorEvent);
     q.push(waitAndSayHello);
     q.push(waitAndSayHello);
     return Promise.all([
-      received(q, 'done'),
-      received(q, 'drain'),
+      receivedInOrder(q, ['done', 'done', 'drain']),
       q.start()
     ]);
   });
