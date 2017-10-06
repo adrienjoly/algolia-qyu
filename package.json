@@ -7,12 +7,16 @@
     "nodejs": ">=7.6"
   },
   "scripts": {
-    "test": "node test.js"
+    "watch-logfile": "tail -f qyu.log &",
+    "test": "node test.js &>qyu.log"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adrienjoly/algolia-qyu.git"
   },
   "author": "Adrien Joly",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "simple-node-logger": "^0.93.30"
+  }
 }

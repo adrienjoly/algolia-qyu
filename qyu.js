@@ -2,6 +2,11 @@
 
 const EventEmitter = require('events');
 
+const LOG_LEVEL = 'trace';
+const log = require('simple-node-logger').createSimpleLogger();
+log.setLevel(LOG_LEVEL);
+log.trace(`Qyu ${LOG_LEVEL} logging to standard output`);
+
 const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
@@ -29,6 +34,7 @@ class Qyu extends EventEmitter {
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    */
   constructor(opts) {
+    log.trace('Qyu:constructor() ', opts);
     super(opts);
     this.opts = Object.assign({}, opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
@@ -50,6 +56,7 @@ class Qyu extends EventEmitter {
    * @param {*} jobResult - return value of the job function that ended
    */
   _jobEnded(jobResult) {
+    log.trace('Qyu:_jobEnded() ', jobResult);
     this.running = 0;
     /**
      * `done` event. Fired every time a job's execution has ended succesfully.
@@ -70,6 +77,7 @@ class Qyu extends EventEmitter {
    * called by _processJob() when all jobs are done
    */
   _drained() {
+    log.trace('Qyu:_drained()');
     /**
      * `drain` event. Fired when no more jobs are to be run.
      * @event Qyu#drain
@@ -78,6 +86,7 @@ class Qyu extends EventEmitter {
   }
 
   _processJob() {
+    log.trace('Qyu:_processJob()');
     if (this.started && this.running === 0) {
       if (this.jobs.length) {
         const priority = this.jobs.reduce((lowest, job) => Math.min(lowest, job.opts.priority), LOWEST_PRIO);
@@ -100,6 +109,7 @@ class Qyu extends EventEmitter {
    * @returns {Promise} resolves with {jobId, jobResult}
    */
   push(job, opts) {
+    log.trace('Qyu:push() ', job, opts);
     this.jobs.push({
       job,
       opts: Object.assign(DEFAULT_JOB_OPTIONS, opts)
@@ -113,6 +123,7 @@ class Qyu extends EventEmitter {
    * @returns {Promise} resolves when the queue has paused (no jobs being processed)
    */
   pause() {
+    log.trace('Qyu:pause()');
     return new Promise((resolve, reject) => {
       this.started = false;
       if (this.running === 0) {
@@ -128,6 +139,7 @@ class Qyu extends EventEmitter {
    * @returns {Promise} resolves when the queue has started (first time) or unpaused
    */
   start() {
+    log.trace('Qyu:start()');
     new Promise((resolve, reject) => {
       this.started = true;
       resolve();
