@@ -32,7 +32,7 @@ var nextJobId = 0; // global job counter, used to generate unique ids
 class Qyu extends EventEmitter {
 
   /**
-   * instanciates a queue
+   * Instanciates a job queue.
    * @param {Object} opts
    * @param {number} opts.rateLimit - maximum number of jobs being processed by second
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
@@ -49,8 +49,6 @@ class Qyu extends EventEmitter {
 
     // TODO
     /*
-    this.emit('error', {jobId, error});
-    this.emit('drain');
     this.emit('stats', {nbJobsPerSecond});
     */
   }
@@ -58,16 +56,20 @@ class Qyu extends EventEmitter {
   /**
    * emit an `error` event
    * @private
-   * @param {Error} err
+   * @param {Object} err
+   * @param {number} err.jobId - identifier of the job that throwed the error
+   * @param {Error} err.error - error object throwed by the job
    */
-  _error(err) {
-    log.trace('Qyu:_error ', err);
+  _error({jobId, error}) {
+    log.trace('Qyu:_error ', {jobId, error});
     /**
-     * `error` event.
+     * Fired every time a job fails by throwing an error.
      * @event Qyu#error
-     * @type {Error}
+     * @type {Object}
+     * @property {number} jobId - identifier of the job that throwed the error
+     * @property {Error} error - error object throwed by the job
      */
-    this.emit('error', error);
+    this.emit('error', {jobId, error});
   }
 
   /**
@@ -81,7 +83,7 @@ class Qyu extends EventEmitter {
   _done(res) {
     log.trace('Qyu:_done ', res);
     /**
-     * `done` event. Fired every time a job's execution has ended succesfully.
+     * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
      * @type {object}
      * @property {number} jobId - identifier of the job which execution ended
@@ -138,7 +140,7 @@ class Qyu extends EventEmitter {
   _drained() {
     log.trace('Qyu:_drained()');
     /**
-     * `drain` event. Fired when no more jobs are to be run.
+     * Fired when no more jobs are to be run.
      * @event Qyu#drain
      */
     this.emit('drain');
@@ -167,11 +169,11 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * add a job to this queue
+   * Add a job to this queue, and runs it if queue was started.
    * @param {Function} job is a function returning a promise to indicate when the job is done
    * @param {Object} opts
    * @param {number} opts.priority from 1 to 10, 1 being the highest priority
-   * @returns {Promise} resolves with {jobId, jobResult}
+   * @returns {Promise} A promise that resolves with {jobId, jobResult}
    */
   push(job, opts) {
     log.trace('Qyu:push() ', job, opts);
@@ -184,8 +186,8 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * pause all running jobs of this queue
-   * @returns {Promise} resolves when the queue has paused (no jobs being processed)
+   * Pause all running jobs of this queue.
+   * @returns {Promise} A promise that resolves when the queue has paused (no jobs being processed)
    */
   pause() {
     log.trace('Qyu:pause()');
@@ -200,8 +202,8 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * start running jobs of this queue
-   * @returns {Promise} resolves when the queue has started (first time) or unpaused
+   * Start running jobs of this queue.
+   * @returns {Promise} A promise that resolves when the queue has started (first time) or unpaused
    */
   start() {
     log.trace('Qyu:start()');
