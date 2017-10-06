@@ -1,5 +1,5 @@
 [QYU-LOG] TRACE Qyu trace logging to standard output
-[QYU-LOG] TRACE Qyu:constructor() {"rateLimit":50,"statsInterval":300}
+[QYU-LOG] TRACE Qyu:constructor() {"log":{},"rateLimit":50,"statsInterval":300}
 [QYU-LOG] TRACE Qyu:push() {"priority":1}
 [QYU-LOG] TRACE Qyu:_processJob() {"started":false,"running":0}
 [QYU-LOG] TRACE Qyu:pause()

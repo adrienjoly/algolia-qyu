@@ -1,6 +1,15 @@
+// set up logging
+const LOG_LEVEL = 'trace';
+const log = require('simple-node-logger').createSimpleLogger({
+  timestampFormat: '[[QYU-LOG]]'
+});
+log.setLevel(LOG_LEVEL);
+log.trace(`Qyu ${LOG_LEVEL} logging to standard output`);
+
 const qyu = require('./qyu');
 
 const q = qyu({
+  log,
   rateLimit: 50, // maximum number of jobs being processed by second
   statsInterval: 300 // When stat event is sent, in ms
 });
