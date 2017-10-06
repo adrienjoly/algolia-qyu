@@ -127,7 +127,7 @@ describe('basic qyu usage', function() {
   });
 
   it('should be able to restart after pause()', async function() {
-    const q = qyu({ log: createLogger() });
+    const q = qyu();
     q.on('error', throwOnErrorEvent);
     var jobs = [ makeSpyJob(), makeSpyJob() ];
     jobs.forEach(q.push.bind(q)); // push all jobs to queue
@@ -148,7 +148,27 @@ describe('basic qyu usage', function() {
     return finalExpectation;
   });
 
-  // TODO: test error
+  it('job error should be passed thru an event', function() {
+    const q = qyu();
+    const ERROR = 'job failed';
+    const finalExpectation = new Promise((resolve, reject) =>
+      q.on('error', (err) => {
+        if (err.error === ERROR) {
+          resolve();
+        } else {
+          reject(`unexpected error: ${err.error}`);
+        }
+      })
+    );
+    q.push(async function failingJob() {
+      throw(ERROR);
+    });
+    return Promise.all([
+      finalExpectation,
+      q.start()
+    ]);
+  });
+
   // TODO: test priority
   // TODO: test rateLimit
   // TODO: test stats with statsInterval

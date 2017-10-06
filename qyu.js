@@ -124,8 +124,12 @@ class Qyu extends EventEmitter {
    */
   _jobEndedWithError(err) {
     this.log.trace('Qyu:_jobEndedWithError()');
+    const errObj = {
+      jobId: this.runningJob.id,
+      error: err,
+    };
     this._popJob(this.runningJob.id);
-    this._error(err);
+    this._error(errObj);
     this._processJob(); // run next job, if any
   }
 
