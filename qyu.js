@@ -68,12 +68,14 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * called by _processJob() when a job is done
-   * @param {*} jobResult - return value of the job function that ended
+   * emit a `done` event
+   * @param {Object} res
+   * @param {Object} res.jobId - identifier of the job which execution ended
+   * @param {Object} res.jobResult - return value of the job function
+   * @param {Object} res.res - TBD
    */
-  _jobEnded(jobResult) {
-    log.trace('Qyu:_jobEnded() ', jobResult);
-    this.running = 0;
+  _done(res) {
+    log.trace('Qyu:_done ', res);
     /**
      * `done` event. Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -82,11 +84,33 @@ class Qyu extends EventEmitter {
      * @property {*} jobResult - return value of the job function
      * @property {*} res - TBD
      */
-    this.emit('done', {
+    this.emit('done', res);
+  }
+
+  /**
+   * called by _jobEnded() and _jobEndedWithError()
+   * @param {number} jobId - identifier of the job which execution ended
+   */
+  _popJob(jobId) {
+    this.running = 0;
+    this.jobs = this.jobs.filter(job => job.id !== jobId);
+    this.runningJob = null;
+  }
+
+  /**
+   * called by _processJob() when a job is done
+   * @param {*} jobResult - return value of the job function that ended
+   */
+  _jobEnded(jobResult) {
+    log.trace('Qyu:_jobEnded() ', jobResult);
+    const doneObj = {
       jobId: this.runningJob.id,
       jobResult,
       res: null, // TODO
-    });
+    };
+    this._popJob(this.runningJob.id);
+    this._done(doneObj);
+    this._processJob(); // run next job, if any
   }
 
   /**
@@ -95,8 +119,9 @@ class Qyu extends EventEmitter {
    */
   _jobEndedWithError(err) {
     log.trace('Qyu:_jobEndedWithError()');
-    this.running = 0;
+    this._popJob(this.runningJob.id);
     this._error(err);
+    this._processJob(); // run next job, if any
   }
 
   /**

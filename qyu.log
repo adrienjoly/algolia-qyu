@@ -1,10 +1,14 @@
-13:03:46.242 TRACE Qyu trace logging to standard output
-13:03:46.242 TRACE Qyu:constructor() {"rateLimit":50,"statsInterval":300}
-13:03:46.242 TRACE Qyu:push() {"priority":1}
-13:03:46.242 TRACE Qyu:_processJob() {"started":false,"running":0}
-13:03:46.242 TRACE Qyu:pause()
-13:03:46.243 TRACE Qyu:start()
-13:03:46.243 TRACE Qyu:_processJob() {"started":true,"running":0}
-13:03:46.243 DEBUG Qyu.runningJob = {"id":0,"opts":{"priority":1}}
+13:44:02.838 TRACE Qyu trace logging to standard output
+13:44:02.838 TRACE Qyu:constructor() {"rateLimit":50,"statsInterval":300}
+13:44:02.838 TRACE Qyu:push() {"priority":1}
+13:44:02.838 TRACE Qyu:_processJob() {"started":false,"running":0}
+13:44:02.838 TRACE Qyu:pause()
+13:44:02.838 TRACE Qyu:start()
+13:44:02.838 TRACE Qyu:_processJob() {"started":true,"running":0}
+13:44:02.839 DEBUG Qyu.runningJob = {"id":0,"opts":{"priority":1}}
 Job done 0
-13:03:46.277 TRACE Qyu:_jobEnded() {"Hello":"world!"}
+No more jobs to do
+13:44:02.873 TRACE Qyu:_jobEnded() {"Hello":"world!"}
+13:44:02.873 TRACE Qyu:_done {"jobId":0,"jobResult":{"Hello":"world!"},"res":null}
+13:44:02.874 TRACE Qyu:_processJob() {"started":true,"running":0}
+13:44:02.874 TRACE Qyu:_drained()
