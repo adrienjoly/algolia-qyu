@@ -52,6 +52,20 @@ class Qyu extends EventEmitter {
   }
 
   /**
+   * emit an `error` event
+   * @param {Error} err
+   */
+  _error(err) {
+    log.trace('Qyu:_error ', err);
+    /**
+     * `error` event.
+     * @event Qyu#error
+     * @type {Error}
+     */
+    this.emit('error', error);
+  }
+
+  /**
    * called by _processJob() when a job is done
    * @param {*} jobResult - return value of the job function that ended
    */
@@ -74,6 +88,16 @@ class Qyu extends EventEmitter {
   }
 
   /**
+   * called by _processJob() when a job has ended with an error
+   * @param {Error} err
+   */
+  _jobEndedWithError(err) {
+    log.trace('Qyu:_jobEndedWithError()');
+    this.running = 0;
+    this._error(err);
+  }
+
+  /**
    * called by _processJob() when all jobs are done
    */
   _drained() {
@@ -93,10 +117,10 @@ class Qyu extends EventEmitter {
         const nextJob = this.jobs.find(job => job.opts.priority === priority);
         nextJob.job()
           .then(this._jobEnded.bind(this))
-          //.catch() // TODO
-        }
-    } else {
-      this._drained();
+          .catch(this._jobEndedWithError.bind(this));
+      } else {
+        this._drained();
+      }
     }
     // TODO: commit to rateLimit
   }
