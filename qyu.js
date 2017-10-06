@@ -8,7 +8,7 @@ const LOWEST_PRIO = 10;
 const DEFAULT_QUEUE_OPTIONS = {
   rateLimit: 1,           // process no more than 1 job per second
   statsInterval: 1000,    // emit `stats` every second
-};
+}; // TODO: use or remove this constant
 
 const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
@@ -154,7 +154,7 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
     if (this.started && this.running === 0) {
       if (this.jobs.length) {
-        const priority = this.jobs.reduce((lowest, job) => Math.min(lowest, job.opts.priority), LOWEST_PRIO);
+        const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
         this.runningJob = this.jobs.find(job => job.opts.priority === priority);
         this.running = 1;
         this.log.debug('Qyu.runningJob = ', this.runningJob);
@@ -180,7 +180,7 @@ class Qyu extends EventEmitter {
     this.jobs.push({
       id: nextJobId++,
       job,
-      opts: Object.assign(DEFAULT_JOB_OPTIONS, opts)
+      opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
     });
     this._processJob();
   }
