@@ -7,6 +7,7 @@
     "nodejs": ">=7.6"
   },
   "scripts": {
+    "generate-doc": "jsdoc qyu.js -d docs",
     "watch-logfile": "tail -f qyu.log &",
     "test": "node test.js &>qyu.log"
   },
@@ -18,5 +19,8 @@
   "license": "ISC",
   "dependencies": {
     "simple-node-logger": "^0.93.30"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.5.5"
   }
 }
