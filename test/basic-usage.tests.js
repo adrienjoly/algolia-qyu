@@ -17,7 +17,7 @@ function createLogger() {
 const throwOnErrorEvent = err => { throw err.error; };
 
 // helper to resolve a promise after several events were fired
-function received(ee, eventName){
+function received(ee, eventName) {
   return new Promise(resolve => ee.on(eventName, resolve));
 }
 
@@ -45,6 +45,17 @@ function wait(ms) {
 async function waitAndSayHello() {
   await wait(30);
   return {Hello: 'world!'} // That's the `jobResult`
+}
+
+// example job
+function makeSpyJob() {
+  const job = async function waitAndSayHello() {
+    await wait(30);
+    job.done = true;
+    return {Hello: 'world!'} // That's the `jobResult`
+  };
+  job.done = false;
+  return job;
 }
 
 describe('basic qyu usage', function() {
@@ -102,5 +113,44 @@ describe('basic qyu usage', function() {
       q.start()
     ]);
   });
+
+  it('pause() should resolve after job1 is done', async function() {
+    const q = qyu();
+    q.on('error', throwOnErrorEvent);
+    var job1 = makeSpyJob();
+    q.push(job1);
+    assert.equal(job1.done, false);
+    await q.start();
+    await q.pause();
+    assert.equal(job1.done, true);
+    await q.start();
+  });
+
+  it('should be able to restart after pause()', async function() {
+    const q = qyu({ log: createLogger() });
+    q.on('error', throwOnErrorEvent);
+    var jobs = [ makeSpyJob(), makeSpyJob() ];
+    jobs.forEach(q.push.bind(q)); // push all jobs to queue
+    assert.equal(jobs[0].done, false);
+    assert.equal(jobs[1].done, false);
+    await q.start();
+    await q.pause();
+    assert.equal(jobs[0].done, true);
+    assert.equal(jobs[1].done, false);
+    const finalExpectation = new Promise((resolve, reject) =>
+      q.on('drain', () => {
+        assert.equal(jobs[0].done, true);
+        assert.equal(jobs[1].done, true);
+        resolve();
+      })
+    );
+    await q.start();
+    return finalExpectation;
+  });
+
+  // TODO: test error
+  // TODO: test priority
+  // TODO: test rateLimit
+  // TODO: test stats with statsInterval
 
 });
