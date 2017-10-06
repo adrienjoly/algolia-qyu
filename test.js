@@ -1,4 +1,4 @@
-const qyu = require('qyu');
+const qyu = require('./qyu');
 
 const q = qyu({
   rateLimit: 50, // maximum number of jobs being processed by second

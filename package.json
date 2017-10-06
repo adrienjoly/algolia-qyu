@@ -1,8 +1,8 @@
 {
-  "name": "algolia-qyu",
+  "name": "qyu",
   "version": "1.0.0",
   "description": "challenge from algolia",
-  "main": "test.js",
+  "main": "qyu.js",
   "engines": {
     "nodejs": ">=7.6"
   },
