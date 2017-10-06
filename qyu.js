@@ -2,18 +2,43 @@
 
 const EventEmitter = require('events');
 
+const LOWEST_PRIO = 10;
+
+const DEFAULT_QUEUE_OPTIONS = {
+  rateLimit: 1,           // process no more than 1 job per second
+  statsInterval: 1000,    // emit `stats` every second
+};
+
+const DEFAULT_JOB_OPTIONS = {
+  priority: LOWEST_PRIO,  // low job priority by default, when calling push()
+};
+
+/**
+ * Holds, controls and reports on execution of a queue of jobs.
+ * @fires Qyu#done
+ * @fires Qyu#error
+ * @fires Qyu#drain
+ * @fires Qyu#stats
+ */
 class Qyu extends EventEmitter {
 
   /**
    * instanciates a queue
    * @param {Object} opts
    * @param {number} opts.rateLimit - maximum number of jobs being processed by second
+   * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    */
   constructor(opts) {
     super(opts);
+    this.opts = Object.assign({}, opts);
+    this.jobs = [];           // unsorted array of { job, opts } objects
+    this.started = false;     // turns to `true` when client called `start()`
+    this.running = 0;         // number of jobs that are running
+    this.runningJob = null;   // job entry that is currently running, or null
+    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
+
     // TODO
     /*
-    this.emit('done', {jobId, jobResult, res});
     this.emit('error', {jobId, error});
     this.emit('drain');
     this.emit('stats', {nbJobsPerSecond});
@@ -21,14 +46,66 @@ class Qyu extends EventEmitter {
   }
 
   /**
+   * called by _processJob() when a job is done
+   * @param {*} jobResult - return value of the job function that ended
+   */
+  _jobEnded(jobResult) {
+    this.running = 0;
+    /**
+     * `done` event. Fired every time a job's execution has ended succesfully.
+     * @event Qyu#done
+     * @type {object}
+     * @property {number} jobId - identifier of the job which execution ended
+     * @property {*} jobResult - return value of the job function
+     * @property {*} res - TBD
+     */
+    this.emit('done', {
+      jobId: this.runningJob.id,
+      jobResult,
+      res: null, // TODO
+    });
+  }
+
+  /**
+   * called by _processJob() when all jobs are done
+   */
+  _drained() {
+    /**
+     * `drain` event. Fired when no more jobs are to be run.
+     * @event Qyu#drain
+     */
+    this.emit('drain');
+  }
+
+  _processJob() {
+    if (this.started && this.running === 0) {
+      if (this.jobs.length) {
+        const priority = this.jobs.reduce((lowest, job) => Math.min(lowest, job.opts.priority), LOWEST_PRIO);
+        const nextJob = this.jobs.find(job => job.opts.priority === priority);
+        nextJob.job()
+          .then(this._jobEnded.bind(this))
+          //.catch() // TODO
+        }
+    } else {
+      this._drained();
+    }
+    // TODO: commit to rateLimit
+  }
+
+  /**
    * add a job to this queue
-   * @param {Promise} job is a function returning a promise to indicate when the job is done
+   * @param {Function} job is a function returning a promise to indicate when the job is done
    * @param {Object} opts
    * @param {number} opts.priority from 1 to 10, 1 being the highest priority
    * @returns {Promise} resolves with {jobId, jobResult}
    */
   push(job, opts) {
-    // TODO
+    this.jobs.push({
+      job,
+      opts: Object.assign(DEFAULT_JOB_OPTIONS, opts)
+    });
+    // TODO: give it a unique job id
+    this._processJob();
   }
 
   /**
@@ -36,8 +113,14 @@ class Qyu extends EventEmitter {
    * @returns {Promise} resolves when the queue has paused (no jobs being processed)
    */
   pause() {
-    // TODO
-    return new Promise((resolve, reject) => resolve());
+    return new Promise((resolve, reject) => {
+      this.started = false;
+      if (this.running === 0) {
+        resolve();
+      } else {
+        this.once('done', resolve);
+      }
+    });
   }
 
   /**
@@ -45,8 +128,10 @@ class Qyu extends EventEmitter {
    * @returns {Promise} resolves when the queue has started (first time) or unpaused
    */
   start() {
-    // TODO
-    new Promise((resolve, reject) => resolve());
+    new Promise((resolve, reject) => {
+      this.started = true;
+      resolve();
+    });
   }
 
 }
