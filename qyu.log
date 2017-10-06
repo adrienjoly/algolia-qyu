@@ -1,8 +1,10 @@
-No more jobs to do
-12:50:47.836 TRACE Qyu trace logging to standard output
-12:50:47.836 TRACE Qyu:constructor() {"rateLimit":50,"statsInterval":300}
-12:50:47.836 TRACE Qyu:push() {"priority":1}
-12:50:47.836 TRACE Qyu:_processJob()
-12:50:47.837 TRACE Qyu:_drained()
-12:50:47.838 TRACE Qyu:pause()
-12:50:47.838 TRACE Qyu:start()
+13:03:46.242 TRACE Qyu trace logging to standard output
+13:03:46.242 TRACE Qyu:constructor() {"rateLimit":50,"statsInterval":300}
+13:03:46.242 TRACE Qyu:push() {"priority":1}
+13:03:46.242 TRACE Qyu:_processJob() {"started":false,"running":0}
+13:03:46.242 TRACE Qyu:pause()
+13:03:46.243 TRACE Qyu:start()
+13:03:46.243 TRACE Qyu:_processJob() {"started":true,"running":0}
+13:03:46.243 DEBUG Qyu.runningJob = {"id":0,"opts":{"priority":1}}
+Job done 0
+13:03:46.277 TRACE Qyu:_jobEnded() {"Hello":"world!"}

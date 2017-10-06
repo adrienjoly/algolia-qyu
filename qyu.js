@@ -18,6 +18,8 @@ const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
 };
 
+var nextJobId = 0; // global job counter, used to generate unique ids
+
 /**
  * Holds, controls and reports on execution of a queue of jobs.
  * @fires Qyu#done
@@ -137,10 +139,10 @@ class Qyu extends EventEmitter {
   push(job, opts) {
     log.trace('Qyu:push() ', job, opts);
     this.jobs.push({
+      id: nextJobId++,
       job,
       opts: Object.assign(DEFAULT_JOB_OPTIONS, opts)
     });
-    // TODO: give it a unique job id
     this._processJob();
   }
 
