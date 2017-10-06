@@ -205,6 +205,7 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:start()');
     return new Promise((resolve, reject) => {
       this.started = true;
+      // throw 'dumm2'; // for testing
       this._processJob();
       resolve();
     });
