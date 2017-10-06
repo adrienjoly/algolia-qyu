@@ -35,7 +35,7 @@ class Qyu extends EventEmitter {
   constructor(opts) {
     super(opts);
     this.opts = Object.assign({}, opts);
-    this.log = opts.log || SimpleNodeLogger.createSimpleLogger();
+    this.log = this.opts.log || SimpleNodeLogger.createSimpleLogger();
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`

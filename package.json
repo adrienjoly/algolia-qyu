@@ -9,7 +9,7 @@
   "scripts": {
     "generate-doc": "jsdoc qyu.js -d docs",
     "watch-logfile": "tail -f qyu.log &",
-    "test": "node test.js &>qyu.log"
+    "test": "node test.js &>qyu.log && mocha"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
     "simple-node-logger": "^0.93.30"
   },
   "devDependencies": {
-    "jsdoc": "^3.5.5"
+    "jsdoc": "^3.5.5",
+    "mocha": "^4.0.1"
   }
 }
