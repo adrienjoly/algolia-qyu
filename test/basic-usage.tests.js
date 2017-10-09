@@ -127,7 +127,4 @@ describe('basic qyu usage', function() {
     ]);
   });
 
-  // TODO: test rateLimit
-  // TODO: test stats with statsInterval
-
 });

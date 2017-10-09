@@ -60,13 +60,14 @@ describe('qyu job priorities', function() {
   it('nbJobsPerSecond must be correct', function(done) {
     const NB_JOBS = 50, WAIT_MS = 10;
     const EXPECTED_JOBS_PER_SECOND = 1000 / WAIT_MS;
-    const TOLERANCE = 10 / 100; // = 10%
+    const TOLERANCE = 20 / 100; // = 20%
     const q = qyu({ statsInterval: NB_JOBS * WAIT_MS / 2});
     const wait = helpers.makeWait(WAIT_MS);
     new Array(NB_JOBS).fill(wait).map(job => q.push(job)); // push 100 jobs that wait 10 seconds
     let nbJobsPerSecond = 0;
     q.on('stats', (res) => nbJobsPerSecond = res.nbJobsPerSecond);
     q.on('drain', () => {
+      console.log('nbJobsPerSecond:', nbJobsPerSecond, 'expected:', EXPECTED_JOBS_PER_SECOND);
       const error = Math.abs(nbJobsPerSecond - EXPECTED_JOBS_PER_SECOND);
       assert(error < TOLERANCE * EXPECTED_JOBS_PER_SECOND);
       done();

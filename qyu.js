@@ -70,6 +70,7 @@ class Qyu extends EventEmitter {
    * @param {boolean} enable - true will (re)start the interval, false will stop it.
    */
   _toggleStatsInterval(enable) {
+    this.log.trace('Qyu:_toggleStatsInterval ', enable || 'false');
     if (this.statsInterval) {
       clearInterval(this.statsInterval)
       this.statsInterval = null;
@@ -182,25 +183,34 @@ class Qyu extends EventEmitter {
   }
 
   /**
+   * determines whether or not it's possible to start another job now, according to rate limits.
+   * @private
+   */
+  _canRunMore() {
+    return this.running === 0;
+    // TODO: enable simultaneous jobs, while commiting to rateLimit
+  }
+
+  /**
    * runs the next job, if any.
    * @private
    */
   _processJob() {
     this.log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
-    if (this.started && this.running === 0) {
-      if (this.jobs.length) {
-        const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
-        this.runningJob = this.jobs.find(job => job.opts.priority === priority);
-        this.running = 1;
-        this.log.debug('Qyu.runningJob = ', this.runningJob);
-        this.runningJob.job()
-          .then(this._jobEnded.bind(this))
-          .catch(this._jobEndedWithError.bind(this));
-      } else {
-        this._drained();
-      }
+    if (!this.started) {
+      return;
+    } else if (!this.jobs.length) {
+      this._drained();
+    } else if (this._canRunMore()) {
+      const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
+      this.runningJob = this.jobs.find(job => job.opts.priority === priority);
+      this.running = 1;
+      this.log.debug('Qyu.runningJob = ', this.runningJob);
+      this.runningJob.job()
+        .then(this._jobEnded.bind(this))
+        .catch(this._jobEndedWithError.bind(this));
+      //this._processJob(); // TODO: try to start another job
     }
-    // TODO: commit to rateLimit
   }
 
   /**
@@ -253,8 +263,8 @@ class Qyu extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.started = true;
       // throw 'dumm2'; // for testing
-      this._processJob();
       this._toggleStatsInterval(true);
+      this._processJob();
       resolve();
     });
   }
