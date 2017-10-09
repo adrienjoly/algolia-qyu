@@ -13,6 +13,9 @@ class RateLimiter extends EventEmitter {
    * Instantiate a RateLimiter.
    * @param {Object} opts
    * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
+   * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
+   * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
+
    */
   constructor(opts) {
     super(opts);
@@ -84,6 +87,7 @@ class RateLimiter extends EventEmitter {
     ++this.running;
     this.log && this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
     this._appendStartedJob();
+    ++this.processedJobs;
   }
 
   /**
@@ -92,7 +96,6 @@ class RateLimiter extends EventEmitter {
   jobEnded() {
     --this.running;
     this.log && this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
-    ++this.processedJobs;
     if (this.running === 0) {
       process.nextTick(() => this.emit('drain'));
     }

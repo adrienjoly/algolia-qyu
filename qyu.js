@@ -34,7 +34,7 @@ class Qyu extends EventEmitter {
   /**
    * Instanciates a job queue.
    * @param {Object} opts
-   * @param {number} opts.rateLimit - maximum number of jobs being processed by second
+   * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
    */
