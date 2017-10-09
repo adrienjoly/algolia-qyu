@@ -12,7 +12,7 @@ const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
   log: SimpleNodeLogger.createSimpleLogger(),
-  rateLimit: 1,           // process no more than 1 job per second
+  rateLimit: null,        // falsy => process in series. otherwise: max number of jobs to run within 1 second
   statsInterval: 1000,    // emit `stats` every second
 };
 
@@ -45,6 +45,7 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
+    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
     this.rateLimiter = new RateLimiter(this.opts);
     this.rateLimiter.on('stats', (stats) => {
       this.log.trace('Qyu:_stats ', stats);
@@ -55,8 +56,8 @@ class Qyu extends EventEmitter {
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
       this.emit('stats', stats);
-    })
-    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
+    });
+    this.rateLimiter.on('drain', this._processJobsOrDrain.bind(this));
   }
 
   /**
@@ -110,7 +111,6 @@ class Qyu extends EventEmitter {
   _jobEnded(job, withError, jobResultOrError) {
     this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
     this.rateLimiter.jobEnded();
-    this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
     if (withError) {
       this._error({
         jobId: job.id,
@@ -123,42 +123,55 @@ class Qyu extends EventEmitter {
         res: null, // TODO
       });
     }
-    this._processJob(); // run next job, if any
   }
 
   /**
-   * called by _processJob() when all jobs are done
    * @private
+   * @returns true if a job can be processed right now.
    */
-  _drained() {
-    this.log.trace('Qyu:_drained()');
-    /**
-     * Fired when no more jobs are to be run.
-     * @event Qyu#drain
-     */
-    this.rateLimiter.toggle(false);
-    this.emit('drain');
+  _hasJobToRun() {
+    return this.started && this.jobs.length && this.rateLimiter.canRunMore();
   }
 
   /**
-   * runs the next job, if any.
+   * runs the next job, if any, and if allowed by rate limiter.
    * @private
    */
   _processJob() {
-    this.log.trace('Qyu:_processJob() ', { started: this.started, running: this.rateLimiter.running });
-    if (!this.started) {
-      return;
-    } else if (!this.jobs.length) {
-      this._drained();
-    } else if (this.rateLimiter.canRunMore()) {
+    this.log.trace('Qyu:_processJob() ', {
+      started: this.started,
+      running: this.rateLimiter.running,
+      remaining: this.jobs.map(j => j.id),
+    });
+    if (this._hasJobToRun()) {
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
-      this.rateLimiter.jobStarted();
+      this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
       this.log.debug('Qyu starting job ', job);
+      this.rateLimiter.jobStarted();
       job.job()
         .then(this._jobEnded.bind(this, job, false))
         .catch(this._jobEnded.bind(this, job, true));
-      //this._processJob(); // TODO: try to start another job
+    }
+  }
+
+  /**
+   * runs as many jobs as allowed by rate limiter, or emit `drain` event.
+   * @private
+   */
+  _processJobsOrDrain() {
+    if (this._hasJobToRun()) {
+      do {
+        this._processJob();
+      } while (this._hasJobToRun());
+    } else {
+      this.log.trace('Qyu:_drained()');
+      /**
+       * Fired when no more jobs are to be run.
+       * @event Qyu#drain
+       */
+      this.emit('drain');
+      this.rateLimiter.toggle(false);
     }
   }
 
@@ -176,7 +189,7 @@ class Qyu extends EventEmitter {
       job,
       opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
     });
-    this._processJob();
+    this._processJob(); // useful for when jobs were pushed after Qyu was started
   }
 
   /**
@@ -201,7 +214,7 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this.rateLimiter.toggle(true);
-      this._processJob();
+      this._processJobsOrDrain();
       resolve();
     });
   }

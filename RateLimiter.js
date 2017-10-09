@@ -1,8 +1,11 @@
 const EventEmitter = require('events');
 
+const ONE_SECOND = 1000;
+
 /**
  * Counts jobs per second to provide stats and commit to rating limit.
  * @fires RateLimiter#stats
+ * @fires RateLimiter#drain
  */
 class RateLimiter extends EventEmitter {
 
@@ -15,10 +18,20 @@ class RateLimiter extends EventEmitter {
     super(opts);
     this.opts = Object.assign({}, opts);
     this.log = this.opts.log;
-    this.running = 0;         // number of jobs that are currently running
-    this.processedJobs = 0;   // number of jobs processed since last call to start()
-    this.statsInterval = null;  // will hold the interval that emits `stats` events
+    this.running = 0;             // number of jobs that are currently running
+    this.startedJobs = [];        // starting dates of jobs started <=1 second ago
+    this.processedJobs = 0;       // number of jobs processed since last call to start()
+    this.statsInterval = null;    // will hold the interval that emits `stats` events
     this.timeOfLastStart = null;  // will hold the time of last call to start()
+  }
+
+  _cleanStartedJobs() {
+    const now = new Date();
+    return this.startedJobs.filter(date => now - date <= ONE_SECOND);
+  }
+
+  _updateStartedJobs() {
+    this.startedJobs = this._cleanStartedJobs().concat([ new Date() ]);
   }
 
   /**
@@ -34,7 +47,7 @@ class RateLimiter extends EventEmitter {
      * @property {number} nbJobsPerSecond - number of jobs that are processed per second
      */
     this.emit('stats', {
-      nbJobsPerSecond: 1000 * this.processedJobs / (new Date() - this.timeOfLastStart)
+      nbJobsPerSecond: ONE_SECOND * this.processedJobs / (new Date() - this.timeOfLastStart)
     });
   }
 
@@ -61,6 +74,8 @@ class RateLimiter extends EventEmitter {
    */
   jobStarted() {
     ++this.running;
+    this.log && this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
+    this._updateStartedJobs();
   }
 
   /**
@@ -68,18 +83,24 @@ class RateLimiter extends EventEmitter {
    */
   jobEnded() {
     --this.running;
+    this.log && this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     ++this.processedJobs;
     if (this.running === 0) {
-      this.emit('drain');
+      process.nextTick(() => this.emit('drain'));
     }
   }
+
+  // TODO: emit event when rate limiter is ready to run more jobs
 
   /**
    * determines whether or not it's possible to start another job now, according to rate limits.
    */
   canRunMore() {
-    return this.running === 0;
-    // TODO: enable simultaneous jobs, while commiting to rateLimit
+    if (this.opts.rateLimit === null) {
+      return this.running === 0; // run jobs sequentially, without applying rate limit
+    }
+    const nbJobsRunningDuringLastSecond = this._cleanStartedJobs().length;
+    return nbJobsRunningDuringLastSecond < this.opts.rateLimit;
   }
 
   async waitForDrain() {

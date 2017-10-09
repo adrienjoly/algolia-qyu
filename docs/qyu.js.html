@@ -28,6 +28,10 @@
         <article>
             <pre class="prettyprint source linenums"><code>// proposed implementation for the "qyu" queue
 
+// useful to get stack traces from UnhandledPromiseRejectionWarning errors:
+//process.on('unhandledRejection', r => console.error(r));
+// see https://github.com/nodejs/node/issues/9523#issuecomment-259303079
+
 const EventEmitter = require('events');
 const SimpleNodeLogger = require('simple-node-logger');
 const RateLimiter = require('./RateLimiter');
@@ -36,7 +40,7 @@ const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
   log: SimpleNodeLogger.createSimpleLogger(),
-  rateLimit: 1,           // process no more than 1 job per second
+  rateLimit: null,        // falsy => process in series. otherwise: max number of jobs to run within 1 second
   statsInterval: 1000,    // emit `stats` every second
 };
 
@@ -65,11 +69,11 @@ class Qyu extends EventEmitter {
   constructor(opts) {
     super(opts);
     this.opts = Object.assign({}, DEFAULT_QUEUE_OPTIONS, opts);
+    this.log = this.opts.log;
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
-    this.running = 0;         // number of jobs that are running
-    this.runningJob = null;   // job entry that is currently running, or null
+    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
     this.rateLimiter = new RateLimiter(this.opts);
     this.rateLimiter.on('stats', (stats) => {
       this.log.trace('Qyu:_stats ', stats);
@@ -80,8 +84,8 @@ class Qyu extends EventEmitter {
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
       this.emit('stats', stats);
-    })
-    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
+    });
+    this.rateLimiter.on('drain', this._processJobsOrDrain.bind(this));
   }
 
   /**
@@ -93,7 +97,6 @@ class Qyu extends EventEmitter {
    */
   _error({jobId, error}) {
     this.log.trace('Qyu:_error ', {jobId, error});
-    this.rateLimiter.jobEnded();
     /**
      * Fired every time a job fails by throwing an error.
      * @event Qyu#error
@@ -114,7 +117,6 @@ class Qyu extends EventEmitter {
    */
   _done(res) {
     this.log.trace('Qyu:_done ', res);
-    this.rateLimiter.jobEnded();
     /**
      * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -127,91 +129,77 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * called by _jobEnded() and _jobEndedWithError()
+   * called by _processJob() when a job has ended (with or without error)
    * @private
-   * @param {number} jobId - identifier of the job which execution ended
+   * @param {Object} job
+   * @param {number} job.id - id of the job function that ended
+   * @param {boolean} withError - true if the job ended becaused of an error
+   * @param {*} jobResultOrError - return value of the job function that ended, or error
    */
-  _popJob(jobId) {
-    this.running = 0;
-    this.jobs = this.jobs.filter(job => job.id !== jobId);
-    this.runningJob = null;
+  _jobEnded(job, withError, jobResultOrError) {
+    this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
+    this.rateLimiter.jobEnded();
+    if (withError) {
+      this._error({
+        jobId: job.id,
+        error: jobResultOrError,
+      });
+    } else {
+      this._done({
+        jobId: job.id,
+        jobResult: jobResultOrError,
+        res: null, // TODO
+      });
+    }
   }
 
   /**
-   * called by _processJob() when a job is done
    * @private
-   * @param {*} jobResult - return value of the job function that ended
+   * @returns true if a job can be processed right now.
    */
-  _jobEnded(jobResult) {
-    this.log.trace('Qyu:_jobEnded() ', jobResult);
-    const doneObj = {
-      jobId: this.runningJob.id,
-      jobResult,
-      res: null, // TODO
-    };
-    this._popJob(this.runningJob.id);
-    this._done(doneObj);
-    this._processJob(); // run next job, if any
+  _hasJobToRun() {
+    return this.started &amp;&amp; this.jobs.length &amp;&amp; this.rateLimiter.canRunMore();
   }
 
   /**
-   * called by _processJob() when a job has ended with an error
-   * @private
-   * @param {Error} err
-   */
-  _jobEndedWithError(err) {
-    this.log.trace('Qyu:_jobEndedWithError()');
-    const errObj = {
-      jobId: this.runningJob.id,
-      error: err,
-    };
-    this._popJob(this.runningJob.id);
-    this._error(errObj);
-    this._processJob(); // run next job, if any
-  }
-
-  /**
-   * called by _processJob() when all jobs are done
-   * @private
-   */
-  _drained() {
-    this.log.trace('Qyu:_drained()');
-    /**
-     * Fired when no more jobs are to be run.
-     * @event Qyu#drain
-     */
-    this.rateLimiter.toggle(false);
-    this.emit('drain');
-  }
-
-  /**
-   * determines whether or not it's possible to start another job now, according to rate limits.
-   * @private
-   */
-  _canRunMore() {
-    return this.running === 0;
-    // TODO: enable simultaneous jobs, while commiting to rateLimit
-  }
-
-  /**
-   * runs the next job, if any.
+   * runs the next job, if any, and if allowed by rate limiter.
    * @private
    */
   _processJob() {
-    this.log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
-    if (!this.started) {
-      return;
-    } else if (!this.jobs.length) {
-      this._drained();
-    } else if (this._canRunMore()) {
+    this.log.trace('Qyu:_processJob() ', {
+      started: this.started,
+      running: this.rateLimiter.running,
+      remaining: this.jobs.map(j => j.id),
+    });
+    if (this._hasJobToRun()) {
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
-      this.runningJob = this.jobs.find(job => job.opts.priority === priority);
-      this.running = 1;
-      this.log.debug('Qyu.runningJob = ', this.runningJob);
-      this.runningJob.job()
-        .then(this._jobEnded.bind(this))
-        .catch(this._jobEndedWithError.bind(this));
-      //this._processJob(); // TODO: try to start another job
+      const job = this.jobs.find(job => job.opts.priority === priority);
+      this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
+      this.log.debug('Qyu starting job ', job);
+      this.rateLimiter.jobStarted();
+      job.job()
+        .then(this._jobEnded.bind(this, job, false))
+        .catch(this._jobEnded.bind(this, job, true));
+    }
+  }
+
+  /**
+   * runs as many jobs as allowed by rate limiter, or emit `drain` event.
+   * @private
+   */
+  _processJobsOrDrain() {
+    if (this._hasJobToRun()) {
+      do {
+        this._processJob();
+      } while (this._hasJobToRun());
+    } else {
+      this.log.trace('Qyu:_drained()');
+      /**
+       * Fired when no more jobs are to be run.
+       * @event Qyu#drain
+       */
+      this.emit('drain');
+      this.rateLimiter.toggle(false);
     }
   }
 
@@ -229,7 +217,7 @@ class Qyu extends EventEmitter {
       job,
       opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
     });
-    this._processJob();
+    this._processJob(); // useful for when jobs were pushed after Qyu was started
   }
 
   /**
@@ -238,21 +226,9 @@ class Qyu extends EventEmitter {
    */
   pause() {
     this.log.trace('Qyu:pause()');
-    return new Promise((resolve, reject) => {
-      let hasResolved = false;
-      const actualPause = () => {
-        if (hasResolved) return;
-        hasResolved = true;
-        this.rateLimiter.toggle(false);
-        resolve();
-      };
-      this.started = false;
-      if (this.running === 0) {
-        actualPause();
-      } else {
-        this.once('done', actualPause);
-        this.once('error', actualPause);
-      }
+    this.started = false; // prevent next jobs from being processed
+    return this.rateLimiter.waitForDrain().then(() => {
+      this.rateLimiter.toggle(false);
     });
   }
 
@@ -266,7 +242,7 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this.rateLimiter.toggle(true);
-      this._processJob();
+      this._processJobsOrDrain();
       resolve();
     });
   }
@@ -294,7 +270,7 @@ module.exports = qyu;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 09 2017 12:28:21 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 09 2017 14:53:42 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
