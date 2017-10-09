@@ -1,4 +1,3 @@
 - linter (eslint --fix ou prettier)
-- travis-ci sur github
-- readme (warn: "not multithreaded")
 - move simplelogger to dev dependencies
+- more tests on concurrency
