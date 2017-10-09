@@ -2,12 +2,12 @@ const EventEmitter = require('events');
 
 /**
  * Counts jobs per second to provide stats and commit to rating limit.
- * @fires Qyu#stats
+ * @fires RateLimiter#stats
  */
 class RateLimiter extends EventEmitter {
 
   /**
-   * Counts jobs per second to provide stats and commit to rating limit.
+   * Instantiate a RateLimiter.
    * @param {Object} opts
    * @param {number} opts.rateLimit - maximum number of jobs to be run per second
    */
@@ -15,6 +15,7 @@ class RateLimiter extends EventEmitter {
     super(opts);
     this.opts = Object.assign({}, opts);
     this.log = this.opts.log;
+    this.running = 0;         // number of jobs that are currently running
     this.processedJobs = 0;   // number of jobs processed since last call to start()
     this.statsInterval = null;  // will hold the interval that emits `stats` events
     this.timeOfLastStart = null;  // will hold the time of last call to start()
@@ -56,10 +57,39 @@ class RateLimiter extends EventEmitter {
   }
 
   /**
+   * Informs the RateLimiter that a job has just started
+   */
+  jobStarted() {
+    ++this.running;
+  }
+
+  /**
    * Informs the RateLimiter that a job has just ended
    */
   jobEnded() {
+    --this.running;
     ++this.processedJobs;
+    if (this.running === 0) {
+      this.emit('drain');
+    }
+  }
+
+  /**
+   * determines whether or not it's possible to start another job now, according to rate limits.
+   */
+  canRunMore() {
+    return this.running === 0;
+    // TODO: enable simultaneous jobs, while commiting to rateLimit
+  }
+
+  async waitForDrain() {
+    return new Promise((resolve, reject) => {
+      if (this.running === 0) {
+        resolve();
+      } else {
+        this.once('drain', resolve);
+      }
+    });
   }
 
 }
