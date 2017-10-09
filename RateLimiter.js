@@ -12,7 +12,7 @@ class RateLimiter extends EventEmitter {
   /**
    * Instantiate a RateLimiter.
    * @param {Object} opts
-   * @param {number} opts.rateLimit - maximum number of jobs to be run per second
+   * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    */
   constructor(opts) {
     super(opts);
@@ -25,12 +25,20 @@ class RateLimiter extends EventEmitter {
     this.timeOfLastStart = null;  // will hold the time of last call to start()
   }
 
+  /**
+   * @returns array of starting dates of jobs started <=1 second ago.
+   * @private
+   */
   _cleanStartedJobs() {
     const now = new Date();
     return this.startedJobs.filter(date => now - date <= ONE_SECOND);
   }
 
-  _updateStartedJobs() {
+  /**
+   * adds the date of last started job in this.startedJobs, after cleaning.
+   * @private
+   */
+  _appendStartedJob() {
     this.startedJobs = this._cleanStartedJobs().concat([ new Date() ]);
   }
 
@@ -75,7 +83,7 @@ class RateLimiter extends EventEmitter {
   jobStarted() {
     ++this.running;
     this.log && this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
-    this._updateStartedJobs();
+    this._appendStartedJob();
   }
 
   /**
@@ -94,6 +102,7 @@ class RateLimiter extends EventEmitter {
 
   /**
    * determines whether or not it's possible to start another job now, according to rate limits.
+   * @returns true if it's possible to start another job now
    */
   canRunMore() {
     if (this.opts.rateLimit === null) {
@@ -103,7 +112,10 @@ class RateLimiter extends EventEmitter {
     return nbJobsRunningDuringLastSecond < this.opts.rateLimit;
   }
 
-  async waitForDrain() {
+  /**
+   * @returns a promise that resolves when all jobs ended running.
+   */
+  waitForDrain() {
     return new Promise((resolve, reject) => {
       if (this.running === 0) {
         resolve();
