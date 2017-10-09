@@ -36,6 +36,12 @@ exports.wait = function wait(ms) {
   return new Promise((resolve, reject) => setTimeout(resolve, ms));
 };
 
+exports.makeWait = function makeWait(ms) {
+  return async function wait() {
+    return await exports.wait(ms);
+  };
+};
+
 // accountable job generator
 exports.makeSpyJob = function makeSpyJob() {
   const job = async function waitAndSayHello() {

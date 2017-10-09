@@ -1,0 +1,5 @@
+- rateLimit is the maximum number of jobs that should run at any moment. (basically how much jobs dod you pop() in a single loop, smg like that)
+- linter (eslint --fix ou prettier)
+- travis-ci sur github
+- readme (warn: "not multithreaded")
+- move simplelogger to dev dependencies

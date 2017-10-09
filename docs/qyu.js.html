@@ -29,20 +29,14 @@
             <pre class="prettyprint source linenums"><code>// proposed implementation for the "qyu" queue
 
 const EventEmitter = require('events');
-
-const LOG_LEVEL = 'trace';
-const log = require('simple-node-logger').createSimpleLogger({
-  timestampFormat: '[[QYU-LOG]]'
-});
-log.setLevel(LOG_LEVEL);
-log.trace(`Qyu ${LOG_LEVEL} logging to standard output`);
+const SimpleNodeLogger = require('simple-node-logger');
 
 const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
   rateLimit: 1,           // process no more than 1 job per second
   statsInterval: 1000,    // emit `stats` every second
-};
+}; // TODO: use or remove this constant
 
 const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
@@ -64,21 +58,55 @@ class Qyu extends EventEmitter {
    * @param {Object} opts
    * @param {number} opts.rateLimit - maximum number of jobs being processed by second
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
+   * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
    */
   constructor(opts) {
-    log.trace('Qyu:constructor() ', opts);
     super(opts);
     this.opts = Object.assign({}, opts);
+    this.log = this.opts.log || SimpleNodeLogger.createSimpleLogger();
+    this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
     this.running = 0;         // number of jobs that are running
     this.runningJob = null;   // job entry that is currently running, or null
+    this.processedJobs = 0;   // number of jobs processed since last call to start()
+    this.statsInterval = null;  // will hold the interval that emits `stats` events
+    this.timeOfLastStart = null;  // will hold the time of last call to start()
     // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
+  }
 
-    // TODO
-    /*
-    this.emit('stats', {nbJobsPerSecond});
-    */
+  /**
+   * emit a `stats` event
+   * @private
+   */
+  _stats() {
+    this.log.trace('Qyu:_stats');
+    /**
+     * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
+     * @event Qyu#stats
+     * @type {object}
+     * @property {number} nbJobsPerSecond - number of jobs that are processed per second
+     */
+    this.emit('stats', {
+      nbJobsPerSecond: 1000 * this.processedJobs / (new Date() - this.timeOfLastStart)
+    });
+  }
+
+  /**
+   * Toggles the interval that emits `stats` events.
+   * @private
+   * @param {boolean} enable - true will (re)start the interval, false will stop it.
+   */
+  _toggleStatsInterval(enable) {
+    if (this.statsInterval) {
+      clearInterval(this.statsInterval)
+      this.statsInterval = null;
+    }
+    if (enable) {
+      this.timeOfLastStart = new Date();
+      this.processedJobs = 0;
+      this.statsInterval = setInterval(this._stats.bind(this), this.opts.statsInterval);
+    }
   }
 
   /**
@@ -89,7 +117,8 @@ class Qyu extends EventEmitter {
    * @param {Error} err.error - error object throwed by the job
    */
   _error({jobId, error}) {
-    log.trace('Qyu:_error ', {jobId, error});
+    this.log.trace('Qyu:_error ', {jobId, error});
+    ++this.processedJobs;
     /**
      * Fired every time a job fails by throwing an error.
      * @event Qyu#error
@@ -109,7 +138,8 @@ class Qyu extends EventEmitter {
    * @param {Object} res.res - TBD
    */
   _done(res) {
-    log.trace('Qyu:_done ', res);
+    this.log.trace('Qyu:_done ', res);
+    ++this.processedJobs;
     /**
      * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -138,7 +168,7 @@ class Qyu extends EventEmitter {
    * @param {*} jobResult - return value of the job function that ended
    */
   _jobEnded(jobResult) {
-    log.trace('Qyu:_jobEnded() ', jobResult);
+    this.log.trace('Qyu:_jobEnded() ', jobResult);
     const doneObj = {
       jobId: this.runningJob.id,
       jobResult,
@@ -155,9 +185,13 @@ class Qyu extends EventEmitter {
    * @param {Error} err
    */
   _jobEndedWithError(err) {
-    log.trace('Qyu:_jobEndedWithError()');
+    this.log.trace('Qyu:_jobEndedWithError()');
+    const errObj = {
+      jobId: this.runningJob.id,
+      error: err,
+    };
     this._popJob(this.runningJob.id);
-    this._error(err);
+    this._error(errObj);
     this._processJob(); // run next job, if any
   }
 
@@ -166,11 +200,12 @@ class Qyu extends EventEmitter {
    * @private
    */
   _drained() {
-    log.trace('Qyu:_drained()');
+    this.log.trace('Qyu:_drained()');
     /**
      * Fired when no more jobs are to be run.
      * @event Qyu#drain
      */
+    this._toggleStatsInterval(false);
     this.emit('drain');
   }
 
@@ -179,13 +214,13 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJob() {
-    log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
+    this.log.trace('Qyu:_processJob() ', { started: this.started, running: this.running });
     if (this.started &amp;&amp; this.running === 0) {
       if (this.jobs.length) {
-        const priority = this.jobs.reduce((lowest, job) => Math.min(lowest, job.opts.priority), LOWEST_PRIO);
+        const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
         this.runningJob = this.jobs.find(job => job.opts.priority === priority);
         this.running = 1;
-        log.debug('Qyu.runningJob = ', this.runningJob);
+        this.log.debug('Qyu.runningJob = ', this.runningJob);
         this.runningJob.job()
           .then(this._jobEnded.bind(this))
           .catch(this._jobEndedWithError.bind(this));
@@ -204,11 +239,11 @@ class Qyu extends EventEmitter {
    * @returns {Promise} A promise that resolves with {jobId, jobResult}
    */
   push(job, opts) {
-    log.trace('Qyu:push() ', job, opts);
+    this.log.trace('Qyu:push() ', job, opts);
     this.jobs.push({
       id: nextJobId++,
       job,
-      opts: Object.assign(DEFAULT_JOB_OPTIONS, opts)
+      opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
     });
     this._processJob();
   }
@@ -218,13 +253,17 @@ class Qyu extends EventEmitter {
    * @returns {Promise} A promise that resolves when the queue has paused (no jobs being processed)
    */
   pause() {
-    log.trace('Qyu:pause()');
+    this.log.trace('Qyu:pause()');
     return new Promise((resolve, reject) => {
+      function actualPause() {
+        this._toggleStatsInterval(false);
+        resolve();
+      }
       this.started = false;
       if (this.running === 0) {
-        resolve();
+        actualPause();
       } else {
-        this.once('done', resolve);
+        this.once('done', actualPause);
       }
     });
   }
@@ -234,10 +273,12 @@ class Qyu extends EventEmitter {
    * @returns {Promise} A promise that resolves when the queue has started (first time) or unpaused
    */
   start() {
-    log.trace('Qyu:start()');
-    new Promise((resolve, reject) => {
+    this.log.trace('Qyu:start()');
+    return new Promise((resolve, reject) => {
       this.started = true;
+      // throw 'dumm2'; // for testing
       this._processJob();
+      this._toggleStatsInterval(true);
       resolve();
     });
   }
@@ -259,13 +300,13 @@ module.exports = qyu;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Qyu.html">Qyu</a></li></ul><h3>Events</h3><ul><li><a href="Qyu.html#event:done">done</a></li><li><a href="Qyu.html#event:drain">drain</a></li><li><a href="Qyu.html#event:error">error</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Qyu.html">Qyu</a></li></ul><h3>Events</h3><ul><li><a href="Qyu.html#event:done">done</a></li><li><a href="Qyu.html#event:drain">drain</a></li><li><a href="Qyu.html#event:error">error</a></li><li><a href="Qyu.html#event:stats">stats</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Oct 06 2017 14:05:33 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 09 2017 10:50:24 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

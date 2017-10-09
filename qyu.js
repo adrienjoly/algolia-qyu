@@ -41,12 +41,44 @@ class Qyu extends EventEmitter {
     this.started = false;     // turns to `true` when client called `start()`
     this.running = 0;         // number of jobs that are running
     this.runningJob = null;   // job entry that is currently running, or null
+    this.processedJobs = 0;   // number of jobs processed since last call to start()
+    this.statsInterval = null;  // will hold the interval that emits `stats` events
+    this.timeOfLastStart = null;  // will hold the time of last call to start()
     // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
+  }
 
-    // TODO
-    /*
-    this.emit('stats', {nbJobsPerSecond});
-    */
+  /**
+   * emit a `stats` event
+   * @private
+   */
+  _stats() {
+    this.log.trace('Qyu:_stats');
+    /**
+     * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
+     * @event Qyu#stats
+     * @type {object}
+     * @property {number} nbJobsPerSecond - number of jobs that are processed per second
+     */
+    this.emit('stats', {
+      nbJobsPerSecond: 1000 * this.processedJobs / (new Date() - this.timeOfLastStart)
+    });
+  }
+
+  /**
+   * Toggles the interval that emits `stats` events.
+   * @private
+   * @param {boolean} enable - true will (re)start the interval, false will stop it.
+   */
+  _toggleStatsInterval(enable) {
+    if (this.statsInterval) {
+      clearInterval(this.statsInterval)
+      this.statsInterval = null;
+    }
+    if (enable) {
+      this.timeOfLastStart = new Date();
+      this.processedJobs = 0;
+      this.statsInterval = setInterval(this._stats.bind(this), this.opts.statsInterval);
+    }
   }
 
   /**
@@ -58,6 +90,7 @@ class Qyu extends EventEmitter {
    */
   _error({jobId, error}) {
     this.log.trace('Qyu:_error ', {jobId, error});
+    ++this.processedJobs;
     /**
      * Fired every time a job fails by throwing an error.
      * @event Qyu#error
@@ -78,6 +111,7 @@ class Qyu extends EventEmitter {
    */
   _done(res) {
     this.log.trace('Qyu:_done ', res);
+    ++this.processedJobs;
     /**
      * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -143,6 +177,7 @@ class Qyu extends EventEmitter {
      * Fired when no more jobs are to be run.
      * @event Qyu#drain
      */
+    this._toggleStatsInterval(false);
     this.emit('drain');
   }
 
@@ -192,11 +227,15 @@ class Qyu extends EventEmitter {
   pause() {
     this.log.trace('Qyu:pause()');
     return new Promise((resolve, reject) => {
+      const actualPause = () => {
+        this._toggleStatsInterval(false);
+        resolve();
+      };
       this.started = false;
       if (this.running === 0) {
-        resolve();
+        actualPause();
       } else {
-        this.once('done', resolve);
+        this.once('done', actualPause);
       }
     });
   }
@@ -211,6 +250,7 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this._processJob();
+      this._toggleStatsInterval(true);
       resolve();
     });
   }
