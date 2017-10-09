@@ -128,4 +128,38 @@ describe('basic qyu usage', function() {
     ]);
   });
 
+  it('push() should return a promise', function() {
+    const q = qyu();
+    async function job1() {}
+    assert(q.push(job1).then);
+  });
+
+  it('job result is promised by push()', function(done) {
+    const q = qyu();
+    const RESULT = 'job done';
+    q.on('error', (e) => console.log('caught job error:', e));
+    q.push(async function job1() { return RESULT; })
+      .catch(done) // parameter would be treated as error by mocha
+      .then((res) => {
+        //console.log('job result:', res);
+        assert.equal(res.jobResult, RESULT);
+        done();
+      });
+    q.start();
+  });
+
+  it('job error is promised by push()', function(done) {
+    const q = qyu();
+    const ERROR = 'job failed';
+    q.on('error', (e) => console.log('caught job error:', e));
+    q.push(async function job1() { throw ERROR; })
+      .then(done) // parameter would be treated as error by mocha
+      .catch((err) => {
+        //console.log('caught job push error:', err);
+        assert.equal(err.error, ERROR);
+        done();
+      });
+    q.start();
+  });
+
 });

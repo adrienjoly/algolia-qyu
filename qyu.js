@@ -112,16 +112,20 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
     this.rateLimiter.jobEnded();
     if (withError) {
-      this._error({
+      const failObj = {
         jobId: job.id,
         error: jobResultOrError,
-      });
+      };
+      this._error(failObj);
+      job.pushPromise.reject(failObj);
     } else {
-      this._done({
+      const doneObj = {
         jobId: job.id,
         jobResult: jobResultOrError,
         res: null, // TODO
-      });
+      };
+      this._done(doneObj);
+      job.pushPromise.resolve(doneObj);
     }
   }
 
@@ -183,13 +187,16 @@ class Qyu extends EventEmitter {
    * @returns {Promise} A promise that resolves with {jobId, jobResult}
    */
   push(job, opts) {
-    this.log.trace('Qyu:push() ', job, opts);
-    this.jobs.push({
-      id: nextJobId++,
-      job,
-      opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
+    return new Promise((resolve, reject) => {
+      this.log.trace('Qyu:push() ', job, opts);
+      this.jobs.push({
+        pushPromise: { resolve, reject },
+        id: nextJobId++,
+        job,
+        opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
+      });
+      this._processJob(); // useful for when jobs were pushed after Qyu was started
     });
-    this._processJob(); // useful for when jobs were pushed after Qyu was started
   }
 
   /**
