@@ -100,49 +100,29 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * called by _jobEnded() and _jobEndedWithError()
+   * called by _processJob() when a job has ended (with or without error)
    * @private
-   * @param {number} jobId - identifier of the job which execution ended
+   * @param {Object} job
+   * @param {number} job.id - id of the job function that ended
+   * @param {boolean} withError - true if the job ended becaused of an error
+   * @param {*} jobResultOrError - return value of the job function that ended, or error
    */
-  _popJob(jobId) {
+  _jobEnded(job, withError, jobResultOrError) {
+    this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
     this.rateLimiter.jobEnded();
-    this.jobs = this.jobs.filter(job => job.id !== jobId); // remove job from queue
-  }
-
-  /**
-   * called by _processJob() when a job is done
-   * @private
-   * @param {Object} job
-   * @param {*} job.id - id of the job function that ended
-   * @param {*} jobResult - return value of the job function that ended
-   */
-  _jobEnded(job, jobResult) {
-    const doneObj = {
-      jobId: job.id,
-      jobResult,
-      res: null, // TODO
-    };
-    this.log.trace('Qyu:_jobEnded() ', doneObj);
-    this._popJob(job.id);
-    this._done(doneObj);
-    this._processJob(); // run next job, if any
-  }
-
-  /**
-   * called by _processJob() when a job has ended with an error
-   * @private
-   * @param {Object} job
-   * @param {*} job.id - id of the job function that ended
-   * @param {Error} err
-   */
-  _jobEndedWithError(job, err) {
-    const errObj = {
-      jobId: job.id,
-      error: err,
-    };
-    this.log.trace('Qyu:_jobEndedWithError() ', errObj);
-    this._popJob(job.id);
-    this._error(errObj);
+    this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
+    if (withError) {
+      this._error({
+        jobId: job.id,
+        error: jobResultOrError,
+      });
+    } else {
+      this._done({
+        jobId: job.id,
+        jobResult: jobResultOrError,
+        res: null, // TODO
+      });
+    }
     this._processJob(); // run next job, if any
   }
 
@@ -176,8 +156,8 @@ class Qyu extends EventEmitter {
       this.rateLimiter.jobStarted();
       this.log.debug('Qyu starting job ', job);
       job.job()
-        .then(this._jobEnded.bind(this, job))
-        .catch(this._jobEndedWithError.bind(this, job));
+        .then(this._jobEnded.bind(this, job, false))
+        .catch(this._jobEnded.bind(this, job, true));
       //this._processJob(); // TODO: try to start another job
     }
   }
