@@ -2,10 +2,12 @@
 
 const EventEmitter = require('events');
 const SimpleNodeLogger = require('simple-node-logger');
+const RateLimiter = require('./RateLimiter');
 
 const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
+  log: SimpleNodeLogger.createSimpleLogger(),
   rateLimit: 1,           // process no more than 1 job per second
   statsInterval: 1000,    // emit `stats` every second
 };
@@ -35,51 +37,24 @@ class Qyu extends EventEmitter {
   constructor(opts) {
     super(opts);
     this.opts = Object.assign({}, DEFAULT_QUEUE_OPTIONS, opts);
-    this.log = this.opts.log || SimpleNodeLogger.createSimpleLogger();
+    this.log = this.opts.log;
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
     this.running = 0;         // number of jobs that are running
     this.runningJob = null;   // job entry that is currently running, or null
-    this.processedJobs = 0;   // number of jobs processed since last call to start()
-    this.statsInterval = null;  // will hold the interval that emits `stats` events
-    this.timeOfLastStart = null;  // will hold the time of last call to start()
+    this.rateLimiter = new RateLimiter(this.opts);
+    this.rateLimiter.on('stats', (stats) => {
+      this.log.trace('Qyu:_stats ', stats);
+      /**
+       * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
+       * @event Qyu#stats
+       * @type {object}
+       * @property {number} nbJobsPerSecond - number of jobs that are processed per second
+       */
+      this.emit('stats', stats);
+    })
     // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
-  }
-
-  /**
-   * emit a `stats` event
-   * @private
-   */
-  _stats() {
-    this.log.trace('Qyu:_stats');
-    /**
-     * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
-     * @event Qyu#stats
-     * @type {object}
-     * @property {number} nbJobsPerSecond - number of jobs that are processed per second
-     */
-    this.emit('stats', {
-      nbJobsPerSecond: 1000 * this.processedJobs / (new Date() - this.timeOfLastStart)
-    });
-  }
-
-  /**
-   * Toggles the interval that emits `stats` events.
-   * @private
-   * @param {boolean} enable - true will (re)start the interval, false will stop it.
-   */
-  _toggleStatsInterval(enable) {
-    this.log.trace('Qyu:_toggleStatsInterval ', enable || 'false');
-    if (this.statsInterval) {
-      clearInterval(this.statsInterval)
-      this.statsInterval = null;
-    }
-    if (enable) {
-      this.timeOfLastStart = new Date();
-      this.processedJobs = 0;
-      this.statsInterval = setInterval(this._stats.bind(this), this.opts.statsInterval);
-    }
   }
 
   /**
@@ -91,7 +66,7 @@ class Qyu extends EventEmitter {
    */
   _error({jobId, error}) {
     this.log.trace('Qyu:_error ', {jobId, error});
-    ++this.processedJobs;
+    this.rateLimiter.jobEnded();
     /**
      * Fired every time a job fails by throwing an error.
      * @event Qyu#error
@@ -112,7 +87,7 @@ class Qyu extends EventEmitter {
    */
   _done(res) {
     this.log.trace('Qyu:_done ', res);
-    ++this.processedJobs;
+    this.rateLimiter.jobEnded();
     /**
      * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -178,7 +153,7 @@ class Qyu extends EventEmitter {
      * Fired when no more jobs are to be run.
      * @event Qyu#drain
      */
-    this._toggleStatsInterval(false);
+    this.rateLimiter.toggle(false);
     this.emit('drain');
   }
 
@@ -241,7 +216,7 @@ class Qyu extends EventEmitter {
       const actualPause = () => {
         if (hasResolved) return;
         hasResolved = true;
-        this._toggleStatsInterval(false);
+        this.rateLimiter.toggle(false);
         resolve();
       };
       this.started = false;
@@ -263,7 +238,7 @@ class Qyu extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.started = true;
       // throw 'dumm2'; // for testing
-      this._toggleStatsInterval(true);
+      this.rateLimiter.toggle(true);
       this._processJob();
       resolve();
     });
