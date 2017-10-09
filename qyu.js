@@ -8,7 +8,7 @@ const LOWEST_PRIO = 10;
 const DEFAULT_QUEUE_OPTIONS = {
   rateLimit: 1,           // process no more than 1 job per second
   statsInterval: 1000,    // emit `stats` every second
-}; // TODO: use or remove this constant
+};
 
 const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
@@ -34,7 +34,7 @@ class Qyu extends EventEmitter {
    */
   constructor(opts) {
     super(opts);
-    this.opts = Object.assign({}, opts);
+    this.opts = Object.assign({}, DEFAULT_QUEUE_OPTIONS, opts);
     this.log = this.opts.log || SimpleNodeLogger.createSimpleLogger();
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
