@@ -73,7 +73,15 @@ describe('basic qyu usage', function() {
     await q.start();
     await q.pause();
     assert.equal(job1.done, true);
+  });
+
+  it('pause() should resolve after job1 ends with an error', async function() {
+    const q = qyu();
+    q.push(async function job1() {
+      throw 'boom!';
+    });
     await q.start();
+    await q.pause();
   });
 
   it('should be able to restart after pause()', async function() {

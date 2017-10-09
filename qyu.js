@@ -227,7 +227,10 @@ class Qyu extends EventEmitter {
   pause() {
     this.log.trace('Qyu:pause()');
     return new Promise((resolve, reject) => {
+      let hasResolved = false;
       const actualPause = () => {
+        if (hasResolved) return;
+        hasResolved = true;
         this._toggleStatsInterval(false);
         resolve();
       };
@@ -236,6 +239,7 @@ class Qyu extends EventEmitter {
         actualPause();
       } else {
         this.once('done', actualPause);
+        this.once('error', actualPause);
       }
     });
   }
