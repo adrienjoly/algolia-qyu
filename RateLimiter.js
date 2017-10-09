@@ -101,8 +101,6 @@ class RateLimiter extends EventEmitter {
     }
   }
 
-  // TODO: emit event when rate limiter is ready to run more jobs
-
   /**
    * determines whether or not it's possible to start another job now, according to rate limits.
    * @returns true if it's possible to start another job now

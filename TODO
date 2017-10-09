@@ -1,3 +1,4 @@
+- emit an event whenever the rate limiter allows to run more jobs
+- more tests on concurrency
 - linter (eslint --fix ou prettier)
 - move simplelogger to dev dependencies
-- more tests on concurrency
