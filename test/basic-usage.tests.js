@@ -67,7 +67,7 @@ describe('basic qyu usage', function() {
   it('pause() should resolve after job1 is done', async function() {
     const q = qyu();
     q.on('error', helpers.throwOnErrorEvent);
-    var job1 = helpers.makeSpyJob();
+    var job1 = helpers.makeSpyJob(30);
     q.push(job1);
     assert.equal(job1.done, false);
     await q.start();
@@ -88,7 +88,7 @@ describe('basic qyu usage', function() {
   it('should be able to restart after pause()', async function() {
     const q = qyu();
     q.on('error', helpers.throwOnErrorEvent);
-    var jobs = [ helpers.makeSpyJob(), helpers.makeSpyJob() ];
+    var jobs = [ helpers.makeSpyJob(30), helpers.makeSpyJob(30) ];
     jobs.forEach(q.push.bind(q)); // push all jobs to queue
     assert.equal(jobs[0].done, false);
     assert.equal(jobs[1].done, false);

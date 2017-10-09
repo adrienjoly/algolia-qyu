@@ -43,11 +43,11 @@ exports.makeWait = function makeWait(ms) {
 };
 
 // accountable job generator
-exports.makeSpyJob = function makeSpyJob() {
+exports.makeSpyJob = function makeSpyJob(milliseconds, res) {
   const job = async function waitAndSayHello() {
-    await exports.wait(30);
+    await exports.wait(milliseconds);
     job.done = true;
-    return {Hello: 'world!'} // That's the `jobResult`
+    return res || { Hello: 'world!' }; // That's the `jobResult`
   };
   job.done = false;
   return job;
