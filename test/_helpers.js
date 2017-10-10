@@ -1,3 +1,5 @@
+const assert = require('assert');
+
 // returns an array without duplicates
 const dedup = a => [...new Set(a)];
 
@@ -51,4 +53,12 @@ exports.makeSpyJob = function makeSpyJob(milliseconds, res) {
   };
   job.done = false;
   return job;
+};
+
+exports.pushMultipleSpyJobsTo = function pushMultipleSpyJobsTo(qyu, nbJobs, milliseconds) {
+  const jobs = new Array(nbJobs).fill(0).map(() => exports.makeSpyJob(milliseconds));
+  jobs.shouldAllBeDone = (expected) => jobs.forEach(job => assert.equal(job.done, expected));
+  jobs.shouldAllBeDone(false); // make sure that jobs are not done yet
+  jobs.forEach(job => qyu.push(job)); // push jobs to queue
+  return jobs;
 };
