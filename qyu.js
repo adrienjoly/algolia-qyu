@@ -41,7 +41,7 @@ class Qyu extends EventEmitter {
     // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
     this.rateLimiter = new RateLimiter(this.opts);
     this.rateLimiter.on('stats', (stats) => {
-      this.log.trace('Qyu:_stats ', stats);
+      this.log.trace('Qyu ⚡️ stats ', stats);
       /**
        * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
        * @event Qyu#stats
@@ -62,7 +62,7 @@ class Qyu extends EventEmitter {
    * @param {Error} err.error - error object throwed by the job
    */
   _error({jobId, error}) {
-    this.log.trace('Qyu:_error ', {jobId, error});
+    this.log.trace('Qyu ⚡️ error ', {jobId, error});
     /**
      * Fired every time a job fails by throwing an error.
      * @event Qyu#error
@@ -82,7 +82,7 @@ class Qyu extends EventEmitter {
    * @param {Object} res.res - TBD
    */
   _done(res) {
-    this.log.trace('Qyu:_done ', res);
+    this.log.trace('Qyu ⚡️ done ', res);
     /**
      * Fired every time a job's execution has ended succesfully.
      * @event Qyu#done
@@ -127,7 +127,7 @@ class Qyu extends EventEmitter {
    * @private
    * @returns true if a job can be processed right now.
    */
-  _hasJobToRun() {
+  _readyToRunJobs() {
     return this.started && this.jobs.length && this.rateLimiter.canRunMore();
   }
 
@@ -136,12 +136,14 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJob() {
+    const readyToRunJobs = this._readyToRunJobs();
     this.log.trace('Qyu:_processJob() ', {
       started: this.started,
       running: this.rateLimiter.running,
       remaining: this.jobs.map(j => j.id),
+      readyToRunJobs
     });
-    if (this._hasJobToRun()) {
+    if (this._readyToRunJobs()) {
       this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
@@ -159,17 +161,17 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJobsOrDrain() {
-    const hasJobToRun = this._hasJobToRun();
+    const readyToRunJobs = this._readyToRunJobs();
     this.log.trace('Qyu:_processJobsOrDrain() ', {
       started: this.started,
       running: this.rateLimiter.running,
       remaining: this.jobs.map(j => j.id),
-      hasJobToRun
+      readyToRunJobs
     });
-    if (hasJobToRun) {
+    if (readyToRunJobs) {
       do {
         this._processJob();
-      } while (this._hasJobToRun());
+      } while (this._readyToRunJobs());
     } else {
       this._drainIfNoMore();
     }
@@ -182,7 +184,7 @@ class Qyu extends EventEmitter {
       remaining: this.jobs.map(j => j.id)
     });
     if (!this.jobs.length) {
-      this.log.trace('Qyu:_drained()');
+      this.log.trace('Qyu ⚡️ drain');
       /**
        * Fired when no more jobs are to be run.
        * @event Qyu#drain
@@ -201,12 +203,13 @@ class Qyu extends EventEmitter {
    */
   push(job, opts) {
     return new Promise((resolve, reject) => {
-      this.log.trace('Qyu:push() ', job, opts);
+      const id = nextJobId++;
+      this.log.trace(`Qyu:push() id: ${id}, opts:`, opts);
       this.jobs.push({
-        pushPromise: { resolve, reject },
-        id: nextJobId++,
+        id,
         job,
-        opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts)
+        opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts),
+        pushPromise: { resolve, reject }
       });
       this._processJob(); // useful for when jobs were pushed after Qyu was started
     });
