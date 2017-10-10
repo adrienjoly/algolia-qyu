@@ -26,6 +26,7 @@ exports.receivedInOrder = function receivedInOrder(ee, expectedEventNames) {
   var remainingEventNames = expectedEventNames.slice(); // clone
   return new Promise((resolve, reject) => {
     dedup(expectedEventNames).forEach(eventName => ee.on(eventName, () => {
+      console.log(exports.PREFIX + 'received event: ' + eventName);
       const expected = remainingEventNames.shift();
       if (eventName !== expected) {
         reject(`expected ${expected}, received ${eventName}`);

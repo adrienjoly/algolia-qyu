@@ -60,6 +60,21 @@ describe('qyu job priorities', function() {
     q.start();
   });
 
+  it('stats are restarted after late job push (after drain)', function() {
+    const WAIT_MS = 100, STATS_INTERV = 60;
+    const q = qyu({ /*log: helpers.createLogger(),*/ statsInterval: STATS_INTERV });
+    const job = helpers.makeWait(WAIT_MS);
+    const pushLateJob = (msBeforePush, job) => new Promise((resolve, reject) =>
+      setTimeout(() => q.push(job).then(resolve), msBeforePush)
+    );
+    return Promise.all([
+      q.push(job),
+      pushLateJob(WAIT_MS * 2, job),
+      q.start(),
+      helpers.receivedInOrder(q, ['stats', 'done', 'drain', 'stats', 'done', 'drain'])
+    ]); // will resolve when all jobs are resolved
+  });
+
   it('stats must be reported at the correct interval', function(done) {
     const NB_JOBS = 40, WAIT_MS = 5, STATS_INTERVAL = 100;
     const q = qyu({ statsInterval: STATS_INTERVAL });
