@@ -5,13 +5,12 @@
 // see https://github.com/nodejs/node/issues/9523#issuecomment-259303079
 
 const EventEmitter = require('events');
-const SimpleNodeLogger = require('simple-node-logger');
 const RateLimiter = require('./RateLimiter');
 
 const LOWEST_PRIO = 10;
 
 const DEFAULT_QUEUE_OPTIONS = {
-  log: SimpleNodeLogger.createSimpleLogger(),
+  log: { trace: () => {}, debug: () => {} }, // can be replaced by instance of simple-node-logger
   rateLimit: null,        // falsy => process in series. otherwise: max number of jobs to run within 1 second
   statsInterval: 1000,    // emit `stats` every second
 };

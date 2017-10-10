@@ -17,11 +17,9 @@
   },
   "author": "Adrien Joly",
   "license": "ISC",
-  "dependencies": {
-    "simple-node-logger": "^0.93.30"
-  },
   "devDependencies": {
     "jsdoc": "^3.5.5",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "simple-node-logger": "^0.93.30"
   }
 }
