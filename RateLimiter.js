@@ -51,7 +51,7 @@ class RateLimiter extends EventEmitter {
    * @private
    */
   _stats() {
-    this.log && this.log.trace('RateLimiter:_stats');
+    this.log.trace('RateLimiter:_stats');
     /**
      * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
      * @event Qyu#stats
@@ -69,7 +69,7 @@ class RateLimiter extends EventEmitter {
    * @param {boolean} enable - true will (re)start the interval, false will stop it.
    */
   toggle(enable) {
-    this.log && this.log.trace('RateLimiter:toggle ', enable || 'false');
+    this.log.trace('RateLimiter:toggle ', enable || 'false');
     if (!!enable === !!this.statsInterval) return;
     if (this.statsInterval) {
       clearInterval(this.statsInterval)
@@ -87,7 +87,7 @@ class RateLimiter extends EventEmitter {
    */
   jobStarted() {
     ++this.running;
-    this.log && this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
+    this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
     ++this.processedJobs;
   }
 
@@ -97,7 +97,7 @@ class RateLimiter extends EventEmitter {
   jobEnded() {
     --this.running;
     this._appendEndedJob();
-    this.log && this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
+    this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     if (this.running === 0) {
       process.nextTick(() => this.emit('drain'));
     }
