@@ -158,7 +158,14 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJobsOrDrain() {
-    if (this._hasJobToRun()) {
+    const hasJobToRun = this._hasJobToRun();
+    this.log.trace('Qyu:_processJobsOrDrain() ', {
+      started: this.started,
+      running: this.rateLimiter.running,
+      remaining: this.jobs.map(j => j.id),
+      hasJobToRun
+    });
+    if (hasJobToRun) {
       do {
         this._processJob();
       } while (this._hasJobToRun());
