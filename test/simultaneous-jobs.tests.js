@@ -85,6 +85,7 @@ describe('simultaneous jobs', function() {
   });
   
   it('rate=2, job pushed late should be delayed after rate limit was reached', function() {
+    this.timeout(4000); // default of 2 seconds may not be enough
     const JOB_DURATION = 30, RATE_LIMIT = 2, ONE_SECOND = 1000;
     const q = qyu({ log: helpers.createLogger(), rateLimit: RATE_LIMIT });
     const job = helpers.makeWait(JOB_DURATION);
