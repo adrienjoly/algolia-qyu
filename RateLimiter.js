@@ -69,7 +69,7 @@ class RateLimiter extends EventEmitter {
    * @param {boolean} enable - true will (re)start the interval, false will stop it.
    */
   toggle(enable) {
-    this.log && this.log.trace('RateLimiter:_toggleStatsInterval ', enable || 'false');
+    this.log && this.log.trace('RateLimiter:toggle ', enable || 'false');
     if (this.statsInterval) {
       clearInterval(this.statsInterval)
       this.statsInterval = null;

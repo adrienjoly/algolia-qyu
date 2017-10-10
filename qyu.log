@@ -4,15 +4,15 @@
 [QYU-LOG] TRACE Qyu:_processJob() {"started":false,"running":0,"remaining":[0]}
 [QYU-LOG] TRACE Qyu:pause()
 [QYU-LOG] TRACE Qyu:start()
-[QYU-LOG] TRACE RateLimiter:_toggleStatsInterval true
+[QYU-LOG] TRACE RateLimiter:toggle true
 [QYU-LOG] TRACE Qyu:_processJob() {"started":true,"running":0,"remaining":[0]}
 [QYU-LOG] DEBUG Qyu starting job {"pushPromise":{},"id":0,"opts":{"priority":1}}
 [QYU-LOG] TRACE RateLimiter:jobStarted => running: 1
-[QYU-LOG] TRACE RateLimiter:_toggleStatsInterval false
+[QYU-LOG] TRACE RateLimiter:toggle false
 Job done 0
 [QYU-LOG] TRACE Qyu:_jobEnded() [{"pushPromise":{},"id":0,"opts":{"priority":1}},false,{"Hello":"world!"}]
 [QYU-LOG] TRACE RateLimiter:jobEnded => running: 0
 No more jobs to do
 [QYU-LOG] TRACE Qyu:_done {"jobId":0,"jobResult":{"Hello":"world!"},"res":null}
 [QYU-LOG] TRACE Qyu:_drained()
-[QYU-LOG] TRACE RateLimiter:_toggleStatsInterval false
+[QYU-LOG] TRACE RateLimiter:toggle false
