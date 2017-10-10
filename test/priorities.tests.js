@@ -77,13 +77,16 @@ describe('qyu job priorities', function() {
 
   it('stats must be reported at the correct interval', function(done) {
     const NB_JOBS = 40, WAIT_MS = 5, STATS_INTERVAL = 100;
+    const EXPECTED_STATS_EVENTS = NB_JOBS * WAIT_MS / STATS_INTERVAL;
     const q = qyu({ statsInterval: STATS_INTERVAL });
     const wait = helpers.makeWait(WAIT_MS);
     new Array(NB_JOBS).fill(wait).map(job => q.push(job)); // push NB_JOBS jobs that wait
     let counter = 0;
     q.on('stats', (res) => ++counter);
+    //q.on('stats', (res) => { ++counter; console.log(new Date().getTime(), 'stat', q.jobs.length); });
     q.on('drain', () => {
-      assert.equal(counter, NB_JOBS * WAIT_MS / STATS_INTERVAL);
+      //console.log(new Date().getTime(), 'drain', counter, EXPECTED_STATS_EVENTS);
+      assert.equal(counter, EXPECTED_STATS_EVENTS);
       done();
     });
     q.start();
@@ -93,7 +96,7 @@ describe('qyu job priorities', function() {
     const NB_JOBS = 50, WAIT_MS = 10;
     const EXPECTED_JOBS_PER_SECOND = 1000 / WAIT_MS;
     const TOLERANCE = 20 / 100; // = 20%
-    const q = qyu({ statsInterval: NB_JOBS * WAIT_MS / 2});
+    const q = qyu({ statsInterval: WAIT_MS});
     const wait = helpers.makeWait(WAIT_MS);
     new Array(NB_JOBS).fill(wait).map(job => q.push(job)); // push NB_JOBS jobs that wait
     let nbJobsPerSecond = 0;
