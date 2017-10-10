@@ -1,9 +1,3 @@
-// proposed implementation for the "qyu" queue
-
-// useful to get stack traces from UnhandledPromiseRejectionWarning errors:
-//process.on('unhandledRejection', r => console.error(r));
-// see https://github.com/nodejs/node/issues/9523#issuecomment-259303079
-
 const EventEmitter = require('events');
 const RateLimiter = require('./RateLimiter');
 
@@ -22,7 +16,7 @@ const DEFAULT_JOB_OPTIONS = {
 var nextJobId = 0; // global job counter, used to generate unique ids
 
 /**
- * Holds, controls and reports on execution of a queue of jobs.
+ * Holds, controls and reports on execution of a queue of asynchronous jobs.
  * @fires Qyu#done
  * @fires Qyu#error
  * @fires Qyu#drain
@@ -232,3 +226,7 @@ function qyu(opts) {
 }
 
 module.exports = qyu;
+
+// useful to get stack traces from UnhandledPromiseRejectionWarning errors:
+//process.on('unhandledRejection', r => console.error(r));
+// see https://github.com/nodejs/node/issues/9523#issuecomment-259303079
