@@ -35,7 +35,7 @@ describe('simultaneous jobs', function() {
       q.pause();
       jobs.shouldAllBeDone(true);
       // make sure that jobs were run in parallel
-      console.log('nbJobsPerSecond:', nbJobsPerSecond);
+      console.log(helpers.PREFIX + 'nbJobsPerSecond:', nbJobsPerSecond);
       assert(nbJobsPerSecond > NB_JOBS);
       done();
     }, WAIT_MS * 2);

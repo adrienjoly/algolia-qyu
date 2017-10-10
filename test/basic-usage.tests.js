@@ -77,7 +77,7 @@ describe('basic qyu usage', function() {
 
   it('pause() should resolve after job1 ends with an error', async function() {
     const q = qyu();
-    q.on('error', (e) => console.log('caught job error:', e));
+    q.on('error', (e) => console.log(helpers.PREFIX + 'caught job error:', e));
     q.push(async function job1() {
       throw 'boom!';
     });
@@ -137,7 +137,7 @@ describe('basic qyu usage', function() {
   it('job result is promised by push()', function(done) {
     const q = qyu();
     const RESULT = 'job done';
-    q.on('error', (e) => console.log('caught job error:', e));
+    q.on('error', (e) => console.log(helpers.PREFIX + 'caught job error:', e));
     q.push(async function job1() { return RESULT; })
       .catch(done) // parameter would be treated as error by mocha
       .then((res) => {

@@ -3,6 +3,9 @@ const assert = require('assert');
 // returns an array without duplicates
 const dedup = a => [...new Set(a)];
 
+// to match indentation of mocha's reporter in console.log() calls
+exports.PREFIX = '      ';
+
 // create a logger/tracer for a Qyu instance
 exports.createLogger = function createLogger() {
   const log = require('simple-node-logger').createSimpleLogger();

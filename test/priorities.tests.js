@@ -67,7 +67,7 @@ describe('qyu job priorities', function() {
     let nbJobsPerSecond = 0;
     q.on('stats', (res) => nbJobsPerSecond = res.nbJobsPerSecond);
     q.on('drain', () => {
-      console.log('nbJobsPerSecond:', nbJobsPerSecond, 'expected:', EXPECTED_JOBS_PER_SECOND);
+      console.log(helpers.PREFIX + 'nbJobsPerSecond:', nbJobsPerSecond, 'expected:', EXPECTED_JOBS_PER_SECOND);
       const error = Math.abs(nbJobsPerSecond - EXPECTED_JOBS_PER_SECOND);
       assert(error < TOLERANCE * EXPECTED_JOBS_PER_SECOND);
       done();
