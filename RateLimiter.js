@@ -70,6 +70,7 @@ class RateLimiter extends EventEmitter {
    */
   toggle(enable) {
     this.log && this.log.trace('RateLimiter:toggle ', enable || 'false');
+    if (!!enable === !!this.statsInterval) return;
     if (this.statsInterval) {
       clearInterval(this.statsInterval)
       this.statsInterval = null;
