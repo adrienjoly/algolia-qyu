@@ -61,6 +61,12 @@ exports.makeSpyJob = function makeSpyJob(milliseconds, res) {
   return job;
 };
 
+exports.pushMultipleJobsTo = function pushMultipleJobsTo(qyu, nbJobs, fct) {
+  const jobs = new Array(nbJobs).fill(0).map(() => fct);
+  jobs.forEach(job => qyu.push(job)); // push jobs to queue
+  return jobs;
+};
+
 exports.pushMultipleSpyJobsTo = function pushMultipleSpyJobsTo(qyu, nbJobs, milliseconds) {
   const jobs = new Array(nbJobs).fill(0).map(() => exports.makeSpyJob(milliseconds));
   jobs.shouldAllBeDone = (expected) => jobs.forEach(job => assert.equal(job.done, expected));

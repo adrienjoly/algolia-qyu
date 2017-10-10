@@ -43,6 +43,23 @@ describe('qyu job priorities', function() {
     assert.equal(counter, 0);
   });
 
+  it('does not run > 1 job at a time', function(done) {
+    const NB_JOBS = 10, WAIT_MS = 30, RATE_LIMIT = 1;
+    const q = qyu();
+    let running = 0;
+    const incrRunningJobs = (incr) => () => {
+      running += incr;
+      if (running > RATE_LIMIT) {
+        done(Error('rateLimit exceeded, number of jobs: ' + running));
+      }
+    };
+    helpers.pushMultipleJobsTo(q, NB_JOBS, helpers.makeJobThenWait(incrRunningJobs(+1), WAIT_MS));
+    q.on('done', incrRunningJobs(-1));
+    q.on('error', incrRunningJobs(-1));
+    q.on('drain', () => done());
+    q.start();
+  });
+
   it('stats must be reported at the correct interval', function(done) {
     const NB_JOBS = 40, WAIT_MS = 5, STATS_INTERVAL = 100;
     const q = qyu({ statsInterval: STATS_INTERVAL });
