@@ -141,6 +141,7 @@ class Qyu extends EventEmitter {
       remaining: this.jobs.map(j => j.id),
     });
     if (this._hasJobToRun()) {
+      this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
       this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
@@ -213,7 +214,7 @@ class Qyu extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.started = true;
       // throw 'dumm2'; // for testing
-      this.rateLimiter.toggle(true);
+      this.rateLimiter.toggle(true); // makes sure that the interval is started asap
       this._processJobsOrDrain();
       resolve();
     });
