@@ -50,8 +50,7 @@ class Qyu extends EventEmitter {
        */
       this.emit('stats', stats);
     });
-    this.rateLimiter.on('drain', this._drainIfNoMore.bind(this));
-    this.rateLimiter.on('avail', this._processJob.bind(this));
+    this.rateLimiter.on('avail', this._processJobs.bind(this));
   }
 
   /**
@@ -121,6 +120,7 @@ class Qyu extends EventEmitter {
       this._done(doneObj);
       job.pushPromise.resolve(doneObj);
     }
+    this._drainIfNoMore();
   }
 
   /**
@@ -157,12 +157,12 @@ class Qyu extends EventEmitter {
   }
 
   /**
-   * runs as many jobs as allowed by rate limiter, or emit `drain` event.
+   * runs as many jobs as allowed by rate limiter.
    * @private
    */
-  _processJobsOrDrain() {
+  _processJobs() {
     const readyToRunJobs = this._readyToRunJobs();
-    this.log.trace('Qyu:_processJobsOrDrain() ', {
+    this.log.trace('Qyu:_processJobs() ', {
       started: this.started,
       running: this.rateLimiter.running,
       remaining: this.jobs.map(j => j.id),
@@ -172,8 +172,6 @@ class Qyu extends EventEmitter {
       do {
         this._processJob();
       } while (this._readyToRunJobs());
-    } else {
-      this._drainIfNoMore();
     }
   }
 
@@ -183,7 +181,7 @@ class Qyu extends EventEmitter {
       running: this.rateLimiter.running,
       remaining: this.jobs.map(j => j.id)
     });
-    if (!this.jobs.length) {
+    if (!this.jobs.length && !this.rateLimiter.running) {
       this.log.trace('Qyu ⚡️ drain');
       /**
        * Fired when no more jobs are to be run.
@@ -237,7 +235,8 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this.rateLimiter.toggle(true); // makes sure that the interval is started asap
-      this._processJobsOrDrain();
+      this._processJobs();
+      this._drainIfNoMore();
       resolve();
     });
   }

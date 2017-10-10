@@ -134,10 +134,10 @@ class RateLimiter extends EventEmitter {
     setTimeout(() => {
       const canRunMore = this.canRunMore();
       this.log.trace('RateLimiter:_emitOnNextAvail [timeout] canRunMore: ', canRunMore || 'false');
-      if (canRunMore) {
+      //if (canRunMore) {
         this.log.trace('RateLimiter ⚡️ avail');
         this.emit('avail');
-      }
+      //}
       // TODO: if still not ready, try again later?
     }, remainingMsUntilAvail);
   }
