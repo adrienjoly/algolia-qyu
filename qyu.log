@@ -13,9 +13,12 @@
 [QYU-LOG] TRACE RateLimiter:toggle false
 Job done 0
 [QYU-LOG] TRACE Qyu:_jobEnded() [{"pushPromise":{},"id":0,"opts":{"priority":1}},false,{"Hello":"world!"}]
-[QYU-LOG] TRACE RateLimiter:jobEnded => running: 0
+[QYU-LOG] TRACE RateLimiter:jobEnded => running: 0, can run more: true
+[QYU-LOG] TRACE RateLimiter emits drain
 No more jobs to do
+[QYU-LOG] TRACE RateLimiter emits avail
 [QYU-LOG] TRACE Qyu:_done {"jobId":0,"jobResult":{"Hello":"world!"},"res":null}
-[QYU-LOG] TRACE Qyu:_processJobsOrDrain() {"started":true,"running":0,"remaining":[],"hasJobToRun":0}
+[QYU-LOG] TRACE Qyu:_drainIfNoMore() {"started":true,"running":0,"remaining":[]}
 [QYU-LOG] TRACE Qyu:_drained()
 [QYU-LOG] TRACE RateLimiter:toggle false
+[QYU-LOG] TRACE Qyu:_processJob() {"started":true,"running":0,"remaining":[]}

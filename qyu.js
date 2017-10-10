@@ -50,7 +50,8 @@ class Qyu extends EventEmitter {
        */
       this.emit('stats', stats);
     });
-    this.rateLimiter.on('drain', this._processJobsOrDrain.bind(this));
+    this.rateLimiter.on('drain', this._drainIfNoMore.bind(this));
+    this.rateLimiter.on('avail', this._processJob.bind(this));
   }
 
   /**
@@ -170,6 +171,17 @@ class Qyu extends EventEmitter {
         this._processJob();
       } while (this._hasJobToRun());
     } else {
+      this._drainIfNoMore();
+    }
+  }
+
+  _drainIfNoMore() {
+    this.log.trace('Qyu:_drainIfNoMore() ', {
+      started: this.started,
+      running: this.rateLimiter.running,
+      remaining: this.jobs.map(j => j.id)
+    });
+    if (!this.jobs.length) {
       this.log.trace('Qyu:_drained()');
       /**
        * Fired when no more jobs are to be run.

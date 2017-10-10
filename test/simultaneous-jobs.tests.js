@@ -43,6 +43,7 @@ describe('simultaneous jobs', function() {
   });
 
   it('does not exceed the rateLimit, even for jobs > 1 second', function(done) {
+    this.timeout(4000); // default of 2 seconds may not be enough
     const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 1;
     const q = qyu({ rateLimit: RATE_LIMIT });
     let running = 0;
@@ -62,6 +63,7 @@ describe('simultaneous jobs', function() {
   });
 
   it('does not exceed the rateLimit for jobs > 1 second, with late push', function(done) {
+    this.timeout(4000); // default of 2 seconds may not be enough
     const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 1;
     const q = qyu({ rateLimit: RATE_LIMIT });
     let running = 0;
@@ -82,6 +84,40 @@ describe('simultaneous jobs', function() {
     q.start();
   });
   
-  // TODO: test with ratelimit of 2, a 2-sec job + a 2nd job that should run after 1 sec
+  it('rate=2, job pushed late should be delayed after rate limit was reached', function() {
+    const JOB_DURATION = 30, RATE_LIMIT = 2, ONE_SECOND = 1000;
+    const q = qyu({ /*log: helpers.createLogger(),*/ rateLimit: RATE_LIMIT });
+    const job = helpers.makeWait(JOB_DURATION);
+    const t0 = new Date();
+    const pushLateJob = (delay) => new Promise((resolve, reject) =>
+      setTimeout(() => q.push(job).then(() => {
+        const now = new Date();
+        console.log(helpers.PREFIX + 'job 3 is done, ' + (now - t0));
+        if (now - t0 < ONE_SECOND) {
+          reject(Error('late job was run within just ' + (now - t0) + ' ms'));
+        } else {
+          resolve();
+        }
+      }), delay));
+    return Promise.all([
+      q.push(job),
+      q.push(job),
+      q.start(),
+      pushLateJob(JOB_DURATION * 2) // push after the two first jobs are done
+    ]); // will resolve when all jobs are resolved
+  });
+
+  it('rate=2, job pushed late should be run on top of job > 1 second', function() {
+    const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 2;
+    const q = qyu({ rateLimit: RATE_LIMIT });
+    const pushLateJob = (delay) => new Promise((resolve, reject) =>
+      setTimeout(() => q.push(helpers.makeWait(JOB2_WAIT_MS)).then(resolve), delay)
+    );
+    return Promise.all([
+      q.push(helpers.makeWait(JOB1_WAIT_MS)),
+      q.start(),
+      pushLateJob(JOB1_WAIT_MS * 0.9)
+    ]); // will resolve when all jobs are resolved
+  });
 
 });
