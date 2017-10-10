@@ -104,42 +104,11 @@ class RateLimiter extends EventEmitter {
   jobEnded() {
     --this.running;
     this._appendEndedJob(); // mutates this.recentJobs
-    const nextExpiredJobDate = this.recentJobs[0]; // must be done early, to prevent race condition
-    const canRunMore = this.canRunMore();
-    this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0', ', canRunMore: ', canRunMore || 'false');
+    this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     if (this.running === 0) {
       this.log.trace('RateLimiter ⚡️ drain');
       process.nextTick(() => this.emit('drain'));
     }
-    if (canRunMore) {
-      // rate limit is not exceeded => ask Qyu for another job
-      this.log.trace('RateLimiter ⚡️ avail');
-      process.nextTick(() => this.emit('avail'));
-    } else {
-      // rate limit is temporally exceeded => wait a bit before asking Qyu for another job
-      this._emitOnNextAvail(nextExpiredJobDate);
-    }
-  }
-
-  /**
-   * Will emit `avail` asap while respecting rate limit.
-   * @private
-   * @param {Date} nextExpiredJobDate - end date of the first recent job to expire.
-   */
-  _emitOnNextAvail(nextExpiredJobDate) {
-    this.log.trace('RateLimiter:_emitOnNextAvail, nextExpiredJobDate: ', nextExpiredJobDate || '(none)');
-    if (!nextExpiredJobDate) return;
-    const remainingMsUntilAvail = ONE_SECOND - (new Date() - nextExpiredJobDate);
-    this.log.debug('RateLimiter:_emitOnNextAvail will emit in ', remainingMsUntilAvail, ' ms ...');
-    setTimeout(() => {
-      const canRunMore = this.canRunMore();
-      this.log.trace('RateLimiter:_emitOnNextAvail [timeout] canRunMore: ', canRunMore || 'false');
-      //if (canRunMore) {
-        this.log.trace('RateLimiter ⚡️ avail');
-        this.emit('avail');
-      //}
-      // TODO: if still not ready, try again later?
-    }, remainingMsUntilAvail);
   }
 
   /**

@@ -6,7 +6,7 @@ const LOWEST_PRIO = 10;
 const DEFAULT_QUEUE_OPTIONS = {
   log: { trace: () => {}, debug: () => {} }, // can be replaced by instance of simple-node-logger
   rateLimit: null,        // falsy => process in series. otherwise: max number of jobs to run within 1 second
-  statsInterval: 1000,    // emit `stats` every second
+  statsInterval: 500,    // emit `stats` every second
 };
 
 const DEFAULT_JOB_OPTIONS = {
@@ -49,8 +49,8 @@ class Qyu extends EventEmitter {
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
       this.emit('stats', stats);
+      this._processJobs();
     });
-    this.rateLimiter.on('avail', this._processJobs.bind(this));
   }
 
   /**
@@ -104,23 +104,18 @@ class Qyu extends EventEmitter {
   _jobEnded(job, withError, jobResultOrError) {
     this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
     this.rateLimiter.jobEnded();
+    const jobObj = { jobId: job.id };
     if (withError) {
-      const failObj = {
-        jobId: job.id,
-        error: jobResultOrError,
-      };
+      const failObj = Object.assign(jobObj, { error: jobResultOrError });
       this._error(failObj);
       //job.pushPromise.reject(failObj); // TODO: uncomment if push() should resolve in case of error
     } else {
-      const doneObj = {
-        jobId: job.id,
-        jobResult: jobResultOrError,
-        res: null, // TODO
-      };
+      const doneObj = Object.assign(jobObj, { jobResult: jobResultOrError });
       this._done(doneObj);
       job.pushPromise.resolve(doneObj);
     }
     this._drainIfNoMore();
+    this._processJobs();
   }
 
   /**
@@ -143,8 +138,8 @@ class Qyu extends EventEmitter {
       remaining: this.jobs.map(j => j.id),
       readyToRunJobs
     });
-    if (this._readyToRunJobs()) {
-      this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
+    if (readyToRunJobs) {
+      //this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
       this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
@@ -161,18 +156,9 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJobs() {
-    const readyToRunJobs = this._readyToRunJobs();
-    this.log.trace('Qyu:_processJobs() ', {
-      started: this.started,
-      running: this.rateLimiter.running,
-      remaining: this.jobs.map(j => j.id),
-      readyToRunJobs
-    });
-    if (readyToRunJobs) {
-      do {
-        this._processJob();
-      } while (this._readyToRunJobs());
-    }
+    do {
+      this._processJob();
+    } while (this._readyToRunJobs());
   }
 
   _drainIfNoMore() {
@@ -209,7 +195,10 @@ class Qyu extends EventEmitter {
         opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts),
         pushPromise: { resolve, reject }
       });
-      this._processJob(); // useful for when jobs were pushed after Qyu was started
+      if (this.started) {
+        this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
+      }
+      this._processJobs(); // useful for when jobs were pushed after Qyu was started
     });
   }
 
@@ -235,8 +224,8 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this.rateLimiter.toggle(true); // makes sure that the interval is started asap
-      this._processJobs();
       this._drainIfNoMore();
+      this._processJobs();
       resolve();
     });
   }
