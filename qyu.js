@@ -117,7 +117,7 @@ class Qyu extends EventEmitter {
         error: jobResultOrError,
       };
       this._error(failObj);
-      job.pushPromise.reject(failObj);
+      //job.pushPromise.reject(failObj); // TODO: uncomment if push() should resolve in case of error
     } else {
       const doneObj = {
         jobId: job.id,
