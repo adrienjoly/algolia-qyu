@@ -22,27 +22,28 @@ class RateLimiter extends EventEmitter {
     this.opts = Object.assign({}, opts);
     this.log = this.opts.log;
     this.running = 0;             // number of jobs that are currently running
-    this.startedJobs = [];        // starting dates of jobs started <=1 second ago
+    this.recentJobs = [];         // end dates of jobs ended <=1 second ago
     this.processedJobs = 0;       // number of jobs processed since last call to start()
     this.statsInterval = null;    // will hold the interval that emits `stats` events
     this.timeOfLastStart = null;  // will hold the time of last call to start()
   }
 
   /**
-   * @returns array of starting dates of jobs started <=1 second ago.
+   * @returns array of end dates of jobs ended <=1 second ago.
    * @private
    */
-  _cleanStartedJobs() {
+  _cleanRecentJobs() {
     const now = new Date();
-    return this.startedJobs.filter(date => now - date <= ONE_SECOND);
+    //console.log(now, 'cleaned', this.recentJobs.filter(date => now - date <= ONE_SECOND));
+    return this.recentJobs.filter(date => now - date <= ONE_SECOND);
   }
 
   /**
-   * adds the date of last started job in this.startedJobs, after cleaning.
+   * adds the date of last ended job in this.recentJobs, after cleaning.
    * @private
    */
-  _appendStartedJob() {
-    this.startedJobs = this._cleanStartedJobs().concat([ new Date() ]);
+  _appendEndedJob() {
+    this.recentJobs = this._cleanRecentJobs().concat([ new Date() ]);
   }
 
   /**
@@ -86,7 +87,6 @@ class RateLimiter extends EventEmitter {
   jobStarted() {
     ++this.running;
     this.log && this.log.trace('RateLimiter:jobStarted => running: ', this.running || '0');
-    this._appendStartedJob();
     ++this.processedJobs;
   }
 
@@ -95,6 +95,7 @@ class RateLimiter extends EventEmitter {
    */
   jobEnded() {
     --this.running;
+    this._appendEndedJob();
     this.log && this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     if (this.running === 0) {
       process.nextTick(() => this.emit('drain'));
@@ -109,8 +110,8 @@ class RateLimiter extends EventEmitter {
     if (this.opts.rateLimit === null) {
       return this.running === 0; // run jobs sequentially, without applying rate limit
     }
-    const nbJobsRunningDuringLastSecond = this._cleanStartedJobs().length;
-    return nbJobsRunningDuringLastSecond < this.opts.rateLimit;
+    const nbJobsEndedDuringLastSecond = this._cleanRecentJobs().length;
+    return this.running + nbJobsEndedDuringLastSecond < this.opts.rateLimit;
   }
 
   /**
