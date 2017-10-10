@@ -21,6 +21,10 @@ $ npm install
 $ npm test
 ```
 
+## Design
+
+![sequence diagram](docs/seq-diagram.svg)
+
 ## Example of use
 
 Here's a minimal example of use:

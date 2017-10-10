@@ -1,0 +1,14 @@
+# https://bramp.github.io/js-sequence-diagrams/#message
+
+Client->Qyu: push(job)
+Client->Qyu: start()
+Qyu->RateLimiter: canRunMore()
+Qyu->RateLimiter: jobStarted()
+Qyu->Qyu: process(job)
+RateLimiter-->Qyu: ⚡stats
+Qyu-->Client: ⚡stats
+Qyu->RateLimiter: jobEnded()
+Qyu-->Client: ⚡️done|error
+RateLimiter-->Qyu: ⚡drain
+Qyu-->Client: ⚡drain
+Client->Qyu: pause()
