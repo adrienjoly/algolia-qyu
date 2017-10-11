@@ -1,7 +1,7 @@
 {
   "name": "qyu",
-  "version": "2.0.0",
-  "description": "challenge from algolia",
+  "version": "3.0.0",
+  "description": "Holds, controls and reports on execution of a queue of asynchronous jobs.",
   "main": "qyu.js",
   "engines": {
     "nodejs": ">=7.6"
