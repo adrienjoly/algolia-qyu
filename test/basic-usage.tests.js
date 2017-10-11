@@ -1,6 +1,7 @@
 var assert = require('assert');
 const qyu = require('../qyu');
 const helpers = require('./_helpers');
+let log = { trace: () => {}, debug: () => {} }; // helpers.createLogger()
 
 // example job
 async function waitAndSayHello() {
@@ -10,23 +11,29 @@ async function waitAndSayHello() {
 
 describe('basic qyu usage', function() {
 
+  if (process.env.TRACES) {
+    beforeEach(function() {
+      log = helpers.createSmartLog();
+    });
+  }
+
   it('qyu() can be instantiated without options', function() {
-    qyu();
+    qyu({ log });
   });
 
   it('start() should return a promise', function() {
-    const q = qyu();
+    const q = qyu({ log });
     assert(q.start().then);
   });
 
   it('start() should resolve immediately if no jobs were pushed', function() {
-    const q = qyu();
+    const q = qyu({ log });
     return q.start();
   });
 
   it('drain event should fire immediately if no jobs were pushed', function() {
     return new Promise((resolve, reject) => {
-      const q = qyu();
+      const q = qyu({ log });
       q.on('error', reject);
       q.on('drain', resolve);
       q.start().catch(reject);
@@ -34,7 +41,7 @@ describe('basic qyu usage', function() {
   });
 
   it('drain event should fire immediately if no jobs were pushed (2)', function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', helpers.throwOnErrorEvent);
     return Promise.all([
       helpers.received(q, 'drain'),
@@ -43,7 +50,7 @@ describe('basic qyu usage', function() {
   });
 
   it('done and drain events should fire after running one job', function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', helpers.throwOnErrorEvent);
     q.push(waitAndSayHello);
     return Promise.all([
@@ -54,7 +61,7 @@ describe('basic qyu usage', function() {
   });
 
   it('done and drain events should fire after running two jobs', function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', helpers.throwOnErrorEvent);
     q.push(waitAndSayHello);
     q.push(waitAndSayHello);
@@ -65,7 +72,7 @@ describe('basic qyu usage', function() {
   });
 
   it('pause() should resolve after job1 is done', async function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', helpers.throwOnErrorEvent);
     var job1 = helpers.makeSpyJob(30);
     q.push(job1);
@@ -76,7 +83,7 @@ describe('basic qyu usage', function() {
   });
 
   it('pause() should resolve after job1 ends with an error', async function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', (e) => console.log(helpers.PREFIX + 'caught job error:', e));
     q.push(async function job1() {
       throw 'boom!';
@@ -86,7 +93,7 @@ describe('basic qyu usage', function() {
   });
 
   it('should be able to restart after pause()', async function() {
-    const q = qyu();
+    const q = qyu({ log });
     q.on('error', helpers.throwOnErrorEvent);
     var jobs = [ helpers.makeSpyJob(30), helpers.makeSpyJob(30) ];
     jobs.forEach(q.push.bind(q)); // push all jobs to queue
@@ -108,7 +115,7 @@ describe('basic qyu usage', function() {
   });
 
   it('job error should be passed thru an event', function() {
-    const q = qyu();
+    const q = qyu({ log });
     const ERROR = 'job failed';
     const finalExpectation = new Promise((resolve, reject) =>
       q.on('error', (err) => {
@@ -129,13 +136,13 @@ describe('basic qyu usage', function() {
   });
 
   it('push() should return a promise', function() {
-    const q = qyu();
+    const q = qyu({ log });
     async function job1() {}
     assert(q.push(job1).then);
   });
 
   it('job result is promised by push()', function(done) {
-    const q = qyu();
+    const q = qyu({ log });
     const RESULT = 'job done';
     q.on('error', (e) => console.log(helpers.PREFIX + 'caught job error:', e));
     q.push(async function job1() { return RESULT; })

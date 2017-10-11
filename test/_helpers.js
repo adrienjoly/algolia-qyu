@@ -13,6 +13,29 @@ exports.createLogger = function createLogger() {
   return log;
 }
 
+exports.createSmartLog = function createSmartLog(out = console.warn) {
+  const scales = [ 5000, 4000, 3000, 2000, 1000, 500, 200, 100 ];
+  const log = {};
+  let prev = new Date();
+  function makeLogger(str) {
+    return function() {
+      const now = new Date();
+      const args = Array.prototype.slice.call(arguments);
+      const parts = [ exports.PREFIX + str ].concat(args.map(JSON.stringify.bind(JSON)));
+      out.apply(console, parts)
+      const elapsed = now - prev;
+      const scale = scales.find(scale => elapsed >= scale);
+      if (scale) {
+        out(`${exports.PREFIX} (≧ ${scale} ms)`);
+      }
+      prev = now;
+    };
+  }
+  log.trace = makeLogger('TRACE');
+  log.debug = makeLogger('DEBUG');
+  return log;
+}
+
 // throw on `error` events
 exports.throwOnErrorEvent = err => { throw err.error; };
 

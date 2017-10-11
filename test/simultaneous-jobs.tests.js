@@ -1,12 +1,19 @@
 const assert = require('assert');
 const helpers = require('./_helpers');
 const qyu = require('../qyu');
+let log = { trace: () => {}, debug: () => {} }; // helpers.createLogger()
 
 describe('simultaneous jobs', function() {
 
+  if (process.env.TRACES) {
+    beforeEach(function() {
+      log = helpers.createSmartLog();
+    });
+  }
+
   it('must be able to run 100 jobs simultaneously', function(done) {
     const NB_JOBS = 100, WAIT_MS = 50;
-    const q = qyu({ rateLimit: NB_JOBS });
+    const q = qyu({ log, rateLimit: NB_JOBS });
     const jobs = helpers.pushMultipleSpyJobsTo(q, NB_JOBS, WAIT_MS);
     // make sure that all jobs will be done in time
     setTimeout(() => {
@@ -20,7 +27,7 @@ describe('simultaneous jobs', function() {
   it('100 simultaneous jobs should report > 100 jobs/second', function(done) {
     const NB_JOBS = 100, WAIT_MS = 50;
     const q = qyu({
-      //log: helpers.createLogger(),
+      log,
       rateLimit: NB_JOBS,
       statsInterval: WAIT_MS / 2
     });
@@ -45,7 +52,7 @@ describe('simultaneous jobs', function() {
   it('does not exceed the rateLimit, even for jobs > 1 second', function(done) {
     this.timeout(4000); // default of 2 seconds may not be enough
     const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 1;
-    const q = qyu({ /*log: helpers.createLogger(),*/ rateLimit: RATE_LIMIT });
+    const q = qyu({ log, rateLimit: RATE_LIMIT });
     let running = 0;
     const incrRunningJobs = (incr) => () => {
       running += incr;
@@ -65,7 +72,7 @@ describe('simultaneous jobs', function() {
   it('does not exceed the rateLimit for jobs > 1 second, with late push', function(done) {
     this.timeout(4000); // default of 2 seconds may not be enough
     const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 1;
-    const q = qyu({ /*log: helpers.createLogger(),*/ rateLimit: RATE_LIMIT });
+    const q = qyu({ log, rateLimit: RATE_LIMIT });
     let running = 0;
     const incrRunningJobs = (incr) => () => {
       running += incr;
@@ -87,7 +94,7 @@ describe('simultaneous jobs', function() {
   it('rate=2, job pushed late should be delayed after rate limit was reached', function() {
     this.timeout(4000); // default of 2 seconds may not be enough
     const JOB_DURATION = 30, RATE_LIMIT = 2, ONE_SECOND = 1000;
-    const q = qyu({ /*log: helpers.createLogger(),*/ rateLimit: RATE_LIMIT });
+    const q = qyu({ log, rateLimit: RATE_LIMIT });
     const job = helpers.makeWait(JOB_DURATION);
     const t0 = new Date();
     const pushLateJob = (delay) => new Promise((resolve, reject) =>
@@ -109,8 +116,9 @@ describe('simultaneous jobs', function() {
   });
 
   it('rate=2, job pushed late should be run on top of job > 1 second', function() {
+    this.timeout(4000); // default of 2 seconds may not be enough
     const JOB1_WAIT_MS = 1600, JOB2_WAIT_MS = 30, RATE_LIMIT = 2;
-    const q = qyu({ rateLimit: RATE_LIMIT });
+    const q = qyu({ log, rateLimit: RATE_LIMIT });
     const pushLateJob = (delay) => new Promise((resolve, reject) =>
       setTimeout(() => q.push(helpers.makeWait(JOB2_WAIT_MS)).then(resolve), delay)
     );

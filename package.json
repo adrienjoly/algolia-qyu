@@ -8,8 +8,9 @@
   },
   "scripts": {
     "generate-doc": "jsdoc qyu.js -d docs",
-    "watch-logfile": "tail -f qyu.log &",
-    "test": "node test.js &>qyu.log && mocha"
+    "watch-logfile": "tail -f qyu.log & tail -f qyu-tests.log &",
+    "test-with-traces": "node test.js &>qyu.log && TRACES=true mocha &>qyu-tests.log",
+    "test": "mocha"
   },
   "repository": {
     "type": "git",

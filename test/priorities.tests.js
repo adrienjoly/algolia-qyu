@@ -1,11 +1,18 @@
 const assert = require('assert');
 const helpers = require('./_helpers');
 const qyu = require('../qyu');
+let log = { trace: () => {}, debug: () => {} }; // helpers.createLogger()
 
 describe('qyu job priorities', function() {
 
+  if (process.env.TRACES) {
+    beforeEach(function() {
+      log = helpers.createSmartLog();
+    });
+  }
+
   it('jobs must be run in order of priority', async function() {
-    const q = qyu(/*{ log: helpers.createLogger() }*/);
+    const q = qyu({ log });
     const jobs = [ helpers.makeSpyJob(30), helpers.makeSpyJob(30), helpers.makeSpyJob(30) ];
     q.push(jobs[0], { priority: 8 }); // should be run third
     q.push(jobs[1], { priority: 1 }); // should be run first
@@ -23,7 +30,7 @@ describe('qyu job priorities', function() {
 
   it('stats must be not be emitted before start()', function(done) {
     const STATS_INTERVAL = 10;
-    const q = qyu({ statsInterval: STATS_INTERVAL });
+    const q = qyu({ log, statsInterval: STATS_INTERVAL });
     let counter = 0;
     q.on('stats', (res) => ++counter);
     setTimeout(() => {
@@ -34,7 +41,7 @@ describe('qyu job priorities', function() {
 
   it('stats must be not be emitted after pause()', async function() {
     const STATS_INTERVAL = 10;
-    const q = qyu({ statsInterval: STATS_INTERVAL });
+    const q = qyu({ log, statsInterval: STATS_INTERVAL });
     q.push(helpers.makeWait(STATS_INTERVAL / 4))
     let counter = 0;
     q.on('stats', (res) => ++counter);
@@ -45,7 +52,7 @@ describe('qyu job priorities', function() {
 
   it('does not run > 1 job at a time', function(done) {
     const NB_JOBS = 10, WAIT_MS = 30, RATE_LIMIT = 1;
-    const q = qyu();
+    const q = qyu({ log });
     let running = 0;
     const incrRunningJobs = (incr) => () => {
       running += incr;
@@ -62,7 +69,7 @@ describe('qyu job priorities', function() {
 
   it('stats are restarted after late job push (after drain)', function() {
     const WAIT_MS = 100, STATS_INTERV = 60;
-    const q = qyu({ /*log: helpers.createLogger(),*/ statsInterval: STATS_INTERV });
+    const q = qyu({ log, statsInterval: STATS_INTERV });
     const job = helpers.makeWait(WAIT_MS);
     const pushLateJob = (msBeforePush, job) => new Promise((resolve, reject) =>
       setTimeout(() => q.push(job).then(resolve), msBeforePush)
@@ -78,7 +85,7 @@ describe('qyu job priorities', function() {
   it('stats must be reported at the correct interval', function(done) {
     const NB_JOBS = 40, WAIT_MS = 5, STATS_INTERVAL = 100;
     const EXPECTED_STATS_EVENTS = NB_JOBS * WAIT_MS / STATS_INTERVAL;
-    const q = qyu({ statsInterval: STATS_INTERVAL });
+    const q = qyu({ log, statsInterval: STATS_INTERVAL });
     const wait = helpers.makeWait(WAIT_MS);
     new Array(NB_JOBS).fill(wait).map(job => q.push(job)); // push NB_JOBS jobs that wait
     let counter = 0;
@@ -96,7 +103,7 @@ describe('qyu job priorities', function() {
     const NB_JOBS = 50, WAIT_MS = 10;
     const EXPECTED_JOBS_PER_SECOND = 1000 / WAIT_MS;
     const TOLERANCE = 20 / 100; // = 20%
-    const q = qyu({ statsInterval: WAIT_MS});
+    const q = qyu({ log, statsInterval: WAIT_MS});
     const wait = helpers.makeWait(WAIT_MS);
     new Array(NB_JOBS).fill(wait).map(job => q.push(job)); // push NB_JOBS jobs that wait
     let nbJobsPerSecond = 0;
