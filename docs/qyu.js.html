@@ -34,12 +34,17 @@ const LOWEST_PRIO = 10;
 const DEFAULT_QUEUE_OPTIONS = {
   log: { trace: () => {}, debug: () => {} }, // can be replaced by instance of simple-node-logger
   rateLimit: null,        // falsy => process in series. otherwise: max number of jobs to run within 1 second
-  statsInterval: 1000,    // emit `stats` every second
+  statsInterval: 500,    // emit `stats` every second
 };
 
 const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
 };
+
+// useful to get stack traces from UnhandledPromiseRejectionWarning errors
+if (process.env.CATCH_UNHANDLED_REJECTIONS) {
+  process.on('unhandledRejection', r => console.error(r));
+}
 
 var nextJobId = 0; // global job counter, used to generate unique ids
 
@@ -58,6 +63,7 @@ class Qyu extends EventEmitter {
    * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
+   * @param {boolean} rejectErrorsOnPush - if true, push()'s premise will reject in case of job error
    */
   constructor(opts) {
     super(opts);
@@ -66,7 +72,6 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
-    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
     this.rateLimiter = new RateLimiter(this.opts);
     this.rateLimiter.on('stats', (stats) => {
       this.log.trace('Qyu ⚡️ stats ', stats);
@@ -77,8 +82,8 @@ class Qyu extends EventEmitter {
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
       this.emit('stats', stats);
+      this._processJobs(); // will run a job if possible
     });
-    this.rateLimiter.on('avail', this._processJobs.bind(this));
   }
 
   /**
@@ -132,23 +137,20 @@ class Qyu extends EventEmitter {
   _jobEnded(job, withError, jobResultOrError) {
     this.log.trace('Qyu:_jobEnded() ', Array.prototype.slice.call(arguments));
     this.rateLimiter.jobEnded();
+    const jobObj = { jobId: job.id };
     if (withError) {
-      const failObj = {
-        jobId: job.id,
-        error: jobResultOrError,
-      };
+      const failObj = Object.assign(jobObj, { error: jobResultOrError });
       this._error(failObj);
-      //job.pushPromise.reject(failObj); // TODO: uncomment if push() should resolve in case of error
+      if (this.opts.rejectErrorsOnPush) {
+        job.pushPromise.reject(failObj);
+      }
     } else {
-      const doneObj = {
-        jobId: job.id,
-        jobResult: jobResultOrError,
-        res: null, // TODO
-      };
+      const doneObj = Object.assign(jobObj, { jobResult: jobResultOrError });
       this._done(doneObj);
       job.pushPromise.resolve(doneObj);
     }
     this._drainIfNoMore();
+    this._processJobs();
   }
 
   /**
@@ -171,8 +173,8 @@ class Qyu extends EventEmitter {
       remaining: this.jobs.map(j => j.id),
       readyToRunJobs
     });
-    if (this._readyToRunJobs()) {
-      this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
+    if (readyToRunJobs) {
+      //this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
       this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
@@ -189,20 +191,15 @@ class Qyu extends EventEmitter {
    * @private
    */
   _processJobs() {
-    const readyToRunJobs = this._readyToRunJobs();
-    this.log.trace('Qyu:_processJobs() ', {
-      started: this.started,
-      running: this.rateLimiter.running,
-      remaining: this.jobs.map(j => j.id),
-      readyToRunJobs
-    });
-    if (readyToRunJobs) {
-      do {
-        this._processJob();
-      } while (this._readyToRunJobs());
-    }
+    do {
+      this._processJob();
+    } while (this._readyToRunJobs());
   }
 
+  /**
+   * emits drain and disables the rate limiter if there are no more jobs to process.
+   * @private
+   */
   _drainIfNoMore() {
     this.log.trace('Qyu:_drainIfNoMore() ', {
       started: this.started,
@@ -237,7 +234,10 @@ class Qyu extends EventEmitter {
         opts: Object.assign({}, DEFAULT_JOB_OPTIONS, opts),
         pushPromise: { resolve, reject }
       });
-      this._processJob(); // useful for when jobs were pushed after Qyu was started
+      if (this.started) {
+        this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
+      }
+      this._processJobs(); // useful for when jobs were pushed after Qyu was started
     });
   }
 
@@ -263,8 +263,8 @@ class Qyu extends EventEmitter {
       this.started = true;
       // throw 'dumm2'; // for testing
       this.rateLimiter.toggle(true); // makes sure that the interval is started asap
-      this._processJobs();
       this._drainIfNoMore();
+      this._processJobs();
       resolve();
     });
   }
@@ -276,10 +276,6 @@ function qyu(opts) {
 }
 
 module.exports = qyu;
-
-// useful to get stack traces from UnhandledPromiseRejectionWarning errors:
-//process.on('unhandledRejection', r => console.error(r));
-// see https://github.com/nodejs/node/issues/9523#issuecomment-259303079
 </code></pre>
         </article>
     </section>
@@ -296,7 +292,7 @@ module.exports = qyu;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Oct 10 2017 17:41:09 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 11 2017 10:26:32 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
