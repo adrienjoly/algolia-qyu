@@ -83,7 +83,7 @@
       received event: drain
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
-    ✓ done and drain events should fire after running two jobs (69ms)
+    ✓ done and drain events should fire after running two jobs (77ms)
       TRACE "Qyu:constructor() " {"log":{}}
       TRACE "Qyu:push() id: 3, opts:" undefined
       TRACE "Qyu:_processJob() " {"started":false,"running":0,"remaining":[3],"readyToRunJobs":false}
@@ -158,7 +158,7 @@
       TRACE "Qyu ⚡️ drain"
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
-    ✓ should be able to restart after pause() (68ms)
+    ✓ should be able to restart after pause() (71ms)
       TRACE "Qyu:constructor() " {"log":{}}
       TRACE "Qyu:push() id: 7, opts:" undefined
       TRACE "Qyu:_processJob() " {"started":false,"running":0,"remaining":[7],"readyToRunJobs":false}
@@ -252,7 +252,7 @@
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":false,"running":0,"remaining":[],"readyToRunJobs":false}
       TRACE "RateLimiter:toggle " "false"
-    ✓ jobs must be run in order of priority (108ms)
+    ✓ jobs must be run in order of priority (107ms)
       TRACE "Qyu:constructor() " {"log":{},"statsInterval":10}
     ✓ stats must be not be emitted before start()
       TRACE "Qyu:constructor() " {"log":{},"statsInterval":10}
@@ -380,7 +380,7 @@
       TRACE "Qyu ⚡️ done " {"jobId":23}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":0,"remaining":[]}
       TRACE "Qyu ⚡️ drain"
-    ✓ does not run > 1 job at a time (346ms)
+    ✓ does not run > 1 job at a time (352ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:constructor() " {"log":{},"statsInterval":60}
@@ -412,7 +412,7 @@
       DEBUG "Qyu starting job " {"id":25,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":15.151515151515152}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":15.625}
       received event: stats
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:_jobEnded() " [{"id":25,"opts":{"priority":10},"pushPromise":{}},false,null]
@@ -425,7 +425,7 @@
       received event: drain
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
-    ✓ stats are restarted after late job push (after drain) (310ms)
+    ✓ stats are restarted after late job push (after drain) (305ms)
       TRACE "Qyu:constructor() " {"log":{},"statsInterval":100}
       TRACE "Qyu:push() id: 26, opts:" undefined
       TRACE "Qyu:_processJob() " {"started":false,"running":0,"remaining":[26],"readyToRunJobs":false}
@@ -741,7 +741,7 @@
       DEBUG "Qyu starting job " {"id":54,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":143.56435643564356}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":144.27860696517413}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[55,56,57,58,59,60,61,62,63,64,65],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":54,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -837,7 +837,7 @@
       TRACE "Qyu ⚡️ done " {"jobId":65}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":0,"remaining":[]}
       TRACE "Qyu ⚡️ drain"
-    ✓ stats must be reported at the correct interval (283ms)
+    ✓ stats must be reported at the correct interval (285ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:constructor() " {"log":{},"statsInterval":10}
@@ -981,7 +981,7 @@
       DEBUG "Qyu starting job " {"id":69,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":86.95652173913044}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":88.88888888888889}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":69,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -992,7 +992,7 @@
       DEBUG "Qyu starting job " {"id":70,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":84.7457627118644}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":87.71929824561404}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":70,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1003,7 +1003,7 @@
       DEBUG "Qyu starting job " {"id":71,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.33333333333333}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":85.71428571428571}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":71,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1014,7 +1014,7 @@
       DEBUG "Qyu starting job " {"id":72,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.3529411764706}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":86.41975308641975}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":72,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1025,7 +1025,7 @@
       DEBUG "Qyu starting job " {"id":73,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.47422680412372}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":86.02150537634408}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":73,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1036,7 +1036,7 @@
       DEBUG "Qyu starting job " {"id":74,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.33333333333333}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":84.90566037735849}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":74,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1047,7 +1047,7 @@
       DEBUG "Qyu starting job " {"id":75,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.33333333333333}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":84.03361344537815}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":75,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1058,7 +1058,7 @@
       DEBUG "Qyu starting job " {"id":76,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.70676691729324}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":84.61538461538461}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":76,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1069,7 +1069,7 @@
       DEBUG "Qyu starting job " {"id":77,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.1917808219178}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.91608391608392}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":77,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1080,7 +1080,7 @@
       DEBUG "Qyu starting job " {"id":78,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.33333333333333}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.80254777070064}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":78,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1091,7 +1091,7 @@
       DEBUG "Qyu starting job " {"id":79,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.84023668639053}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.3529411764706}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":79,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1113,7 +1113,7 @@
       DEBUG "Qyu starting job " {"id":81,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.05128205128206}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.7696335078534}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":81,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1124,7 +1124,7 @@
       DEBUG "Qyu starting job " {"id":82,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.73076923076923}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.74384236453201}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":82,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1135,7 +1135,7 @@
       DEBUG "Qyu starting job " {"id":83,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.44796380090497}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":84.11214953271028}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":83,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1146,7 +1146,7 @@
       DEBUG "Qyu starting job " {"id":84,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.19658119658119}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.70044052863436}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":84,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1157,7 +1157,7 @@
       DEBUG "Qyu starting job " {"id":85,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.63265306122449}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.33333333333333}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":85,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1168,7 +1168,7 @@
       DEBUG "Qyu starting job " {"id":86,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.71206225680933}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":83.00395256916995}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":86,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1179,7 +1179,7 @@
       DEBUG "Qyu starting job " {"id":87,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.48148148148148}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.39700374531836}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":87,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1190,7 +1190,7 @@
       DEBUG "Qyu starting job " {"id":88,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.56028368794327}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.85053380782918}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":88,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1201,7 +1201,7 @@
       DEBUG "Qyu starting job " {"id":89,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.63265306122449}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.47422680412372}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":89,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1212,7 +1212,7 @@
       DEBUG "Qyu starting job " {"id":90,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.90614886731392}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.50825082508251}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":90,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1223,7 +1223,7 @@
       DEBUG "Qyu starting job " {"id":91,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.74534161490683}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.27848101265823}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":91,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1234,7 +1234,7 @@
       DEBUG "Qyu starting job " {"id":92,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.83832335329342}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.06686930091185}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":92,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1245,7 +1245,7 @@
       DEBUG "Qyu starting job " {"id":93,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.92485549132948}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.3953488372093}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":93,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1267,7 +1267,7 @@
       DEBUG "Qyu starting job " {"id":95,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.08108108108108}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.74386920980926}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":95,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1278,7 +1278,7 @@
       DEBUG "Qyu starting job " {"id":96,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.93994778067885}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.79419525065963}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":96,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1289,7 +1289,7 @@
       DEBUG "Qyu starting job " {"id":97,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.8080808080808}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.26221079691517}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":97,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1300,7 +1300,7 @@
       DEBUG "Qyu starting job " {"id":98,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.88235294117646}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.88585607940446}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":98,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1311,7 +1311,7 @@
       DEBUG "Qyu starting job " {"id":99,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.76009501187649}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.92771084337349}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":99,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1322,7 +1322,7 @@
       DEBUG "Qyu starting job " {"id":100,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.83140877598153}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.77570093457943}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[101,102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":100,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1333,7 +1333,7 @@
       DEBUG "Qyu starting job " {"id":101,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.89887640449439}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.1917808219178}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[102,103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":101,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1344,7 +1344,7 @@
       DEBUG "Qyu starting job " {"id":102,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.78602620087337}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.40534521158129}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[103,104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":102,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1355,7 +1355,7 @@
       DEBUG "Qyu starting job " {"id":103,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.85106382978724}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.4295010845987}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[104,105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":103,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1366,7 +1366,7 @@
       DEBUG "Qyu starting job " {"id":104,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.08108108108108}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.10526315789474}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[105,106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":104,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1377,7 +1377,7 @@
       DEBUG "Qyu starting job " {"id":105,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.30081300813008}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.9672131147541}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[106,107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":105,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1388,7 +1388,7 @@
       DEBUG "Qyu starting job " {"id":106,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.51093439363817}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.3293172690763}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[107,108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":106,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1399,7 +1399,7 @@
       DEBUG "Qyu starting job " {"id":107,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.71206225680933}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.1917808219178}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[108,109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":107,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1410,7 +1410,7 @@
       DEBUG "Qyu starting job " {"id":108,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.06106870229007}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.21797323135755}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[109,110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":108,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1421,10 +1421,7 @@
       DEBUG "Qyu starting job " {"id":109,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.08955223880596}
-      TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[110,111,112,113,114,115],"readyToRunJobs":false}
-      TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.58608058608058}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.24299065420561}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[110,111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":109,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1435,7 +1432,7 @@
       DEBUG "Qyu starting job " {"id":110,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.78994614003591}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.41758241758242}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[111,112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":110,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1446,7 +1443,7 @@
       DEBUG "Qyu starting job " {"id":111,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.70175438596492}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.14285714285714}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[112,113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":111,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1457,7 +1454,7 @@
       DEBUG "Qyu starting job " {"id":112,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.61749571183533}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.02443280977312}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[113,114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":112,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1468,7 +1465,7 @@
       DEBUG "Qyu starting job " {"id":113,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.40201005025126}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.91126279863481}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[114,115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":113,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1479,7 +1476,7 @@
       DEBUG "Qyu starting job " {"id":114,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.45977011494253}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":82.07705192629815}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[115],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":114,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1490,7 +1487,7 @@
       DEBUG "Qyu starting job " {"id":115,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":80.51529790660226}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":81.9672131147541}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:_jobEnded() " [{"id":115,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -1498,8 +1495,8 @@
       TRACE "Qyu ⚡️ done " {"jobId":115}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":0,"remaining":[]}
       TRACE "Qyu ⚡️ drain"
-      nbJobsPerSecond: 80.51529790660226 expected: 100
-    ✓ nbJobsPerSecond must be correct (630ms)
+      nbJobsPerSecond: 81.9672131147541 expected: 100
+    ✓ nbJobsPerSecond must be correct (618ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
 
@@ -2512,7 +2509,7 @@
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:pause()"
-    ✓ must be able to run 100 jobs simultaneously (115ms)
+    ✓ must be able to run 100 jobs simultaneously (111ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:constructor() " {"log":{},"rateLimit":100,"statsInterval":25}
       TRACE "Qyu:push() id: 216, opts:" undefined
@@ -3041,9 +3038,6 @@
       TRACE "Qyu ⚡️ done " {"jobId":219,"jobResult":{"Hello":"world!"}}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":96,"remaining":[]}
       TRACE "Qyu:_processJob() " {"started":true,"running":96,"remaining":[],"readyToRunJobs":0}
-      TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1886.7924528301887}
-      TRACE "Qyu:_processJob() " {"started":true,"running":96,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:_jobEnded() " [{"id":220,"opts":{"priority":10},"pushPromise":{}},false,{"Hello":"world!"}]
       TRACE "RateLimiter:jobEnded => running: " 95
       TRACE "Qyu ⚡️ done " {"jobId":220,"jobResult":{"Hello":"world!"}}
@@ -3068,6 +3062,9 @@
       TRACE "RateLimiter:jobEnded => running: " 91
       TRACE "Qyu ⚡️ done " {"jobId":224,"jobResult":{"Hello":"world!"}}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":91,"remaining":[]}
+      TRACE "Qyu:_processJob() " {"started":true,"running":91,"remaining":[],"readyToRunJobs":0}
+      TRACE "RateLimiter ⚡️ stats"
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1785.7142857142858}
       TRACE "Qyu:_processJob() " {"started":true,"running":91,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:_jobEnded() " [{"id":225,"opts":{"priority":10},"pushPromise":{}},false,{"Hello":"world!"}]
       TRACE "RateLimiter:jobEnded => running: " 90
@@ -3528,8 +3525,8 @@
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:pause()"
-      nbJobsPerSecond: 1886.7924528301887
-    ✓ 100 simultaneous jobs should report > 100 jobs/second (113ms)
+      nbJobsPerSecond: 1785.7142857142858
+    ✓ 100 simultaneous jobs should report > 100 jobs/second (115ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:constructor() " {"log":{},"rateLimit":1}
       TRACE "Qyu:push() id: 316, opts:" undefined
@@ -3544,15 +3541,15 @@
       TRACE "RateLimiter:jobStarted => running: " 1
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.976284584980237}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.9920318725099602}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[317],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9920634920634921}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9930486593843099}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[317],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.6622516556291391}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.6618133686300464}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[317],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":316,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -3562,11 +3559,11 @@
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[317],"readyToRunJobs":false}
        (≧ 200 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.4972650422675286}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.49603174603174605}
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[317],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.3972983710766786}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.3971405877680699}
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[317],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
@@ -3580,7 +3577,7 @@
       TRACE "Qyu ⚡️ done " {"jobId":317}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":0,"remaining":[]}
       TRACE "Qyu ⚡️ drain"
-    ✓ does not exceed the rateLimit, even for jobs > 1 second (3057ms)
+    ✓ does not exceed the rateLimit, even for jobs > 1 second (3056ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:constructor() " {"log":{},"rateLimit":1}
@@ -3594,18 +3591,18 @@
       TRACE "RateLimiter:jobStarted => running: " 1
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.9801980198019802}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.976284584980237}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9930486593843099}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9900990099009901}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
        (≧ 200 ms)
       TRACE "Qyu:push() id: 319, opts:" undefined
       TRACE "RateLimiter:toggle " true
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[319],"readyToRunJobs":false}
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.6631299734748011}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.6618133686300464}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[319],"readyToRunJobs":false}
       TRACE "Qyu:_jobEnded() " [{"id":318,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -3615,15 +3612,15 @@
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[319],"readyToRunJobs":false}
        (≧ 200 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.4972650422675286}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.495785820525533}
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[319],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.3979307600477517}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.39698292973402144}
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[319],"readyToRunJobs":false}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.33178500331785005}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.33112582781456956}
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[319],"readyToRunJobs":true}
       DEBUG "Qyu starting job " {"id":319,"opts":{"priority":10},"pushPromise":{}}
       TRACE "RateLimiter:jobStarted => running: " 1
@@ -3633,7 +3630,7 @@
       TRACE "Qyu ⚡️ done " {"jobId":319}
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":0,"remaining":[]}
       TRACE "Qyu ⚡️ drain"
-    ✓ does not exceed the rateLimit for jobs > 1 second, with late push (3050ms)
+    ✓ does not exceed the rateLimit for jobs > 1 second, with late push (3060ms)
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:constructor() " {"log":{},"rateLimit":2}
@@ -3684,8 +3681,8 @@
       TRACE "Qyu ⚡️ drain"
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
-      job 3 is done, 1110
-    ✓ rate=2, job pushed late should be delayed after rate limit was reached (1111ms)
+      job 3 is done, 1107
+    ✓ rate=2, job pushed late should be delayed after rate limit was reached (1108ms)
       TRACE "Qyu:constructor() " {"log":{},"rateLimit":2}
       TRACE "Qyu:push() id: 323, opts:" undefined
       TRACE "Qyu:_processJob() " {"started":false,"running":0,"remaining":[323],"readyToRunJobs":false}
@@ -3697,11 +3694,11 @@
       TRACE "RateLimiter:jobStarted => running: " 1
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.9841269841269842}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.9801980198019802}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
        (≧ 500 ms)
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9940357852882704}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":0.9900990099009901}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
        (≧ 200 ms)
       TRACE "Qyu:push() id: 324, opts:" undefined
@@ -3715,7 +3712,7 @@
       TRACE "Qyu:_drainIfNoMore() " {"started":true,"running":1,"remaining":[]}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
       TRACE "RateLimiter ⚡️ stats"
-      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.3271400132714002}
+      TRACE "Qyu ⚡️ stats " {"nbJobsPerSecond":1.3227513227513228}
       TRACE "Qyu:_processJob() " {"started":true,"running":1,"remaining":[],"readyToRunJobs":0}
       TRACE "Qyu:_jobEnded() " [{"id":323,"opts":{"priority":10},"pushPromise":{}},false,null]
       TRACE "RateLimiter:jobEnded => running: " "0"
@@ -3725,7 +3722,7 @@
       TRACE "Qyu ⚡️ drain"
       TRACE "RateLimiter:toggle " "false"
       TRACE "Qyu:_processJob() " {"started":true,"running":0,"remaining":[],"readyToRunJobs":0}
-    ✓ rate=2, job pushed late should be run on top of job > 1 second (1602ms)
+    ✓ rate=2, job pushed late should be run on top of job > 1 second (1606ms)
 
 
   26 passing (11s)

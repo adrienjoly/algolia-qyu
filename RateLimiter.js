@@ -104,7 +104,7 @@ class RateLimiter extends EventEmitter {
     this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     if (this.running === 0) {
       this.log.trace('RateLimiter ⚡️ drain');
-      process.nextTick(() => this.emit('drain'));
+      this.emit('drain');
     }
   }
 
