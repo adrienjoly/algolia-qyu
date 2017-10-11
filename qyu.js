@@ -13,6 +13,11 @@ const DEFAULT_JOB_OPTIONS = {
   priority: LOWEST_PRIO,  // low job priority by default, when calling push()
 };
 
+// useful to get stack traces from UnhandledPromiseRejectionWarning errors
+if (process.env.CATCH_UNHANDLED_REJECTIONS) {
+  process.on('unhandledRejection', r => console.error(r));
+}
+
 var nextJobId = 0; // global job counter, used to generate unique ids
 
 /**
@@ -30,6 +35,7 @@ class Qyu extends EventEmitter {
    * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
+   * @param {boolean} rejectErrorsOnPush - if true, push()'s premise will reject in case of job error
    */
   constructor(opts) {
     super(opts);
@@ -38,7 +44,6 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu:constructor() ', opts);
     this.jobs = [];           // unsorted array of { job, opts } objects
     this.started = false;     // turns to `true` when client called `start()`
-    // NOTE: could use `Symbol` to prevent properties from being accessed/mutated externally
     this.rateLimiter = new RateLimiter(this.opts);
     this.rateLimiter.on('stats', (stats) => {
       this.log.trace('Qyu ⚡️ stats ', stats);
@@ -49,7 +54,7 @@ class Qyu extends EventEmitter {
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
       this.emit('stats', stats);
-      this._processJobs();
+      this._processJobs(); // will run a job if possible
     });
   }
 
@@ -108,7 +113,9 @@ class Qyu extends EventEmitter {
     if (withError) {
       const failObj = Object.assign(jobObj, { error: jobResultOrError });
       this._error(failObj);
-      //job.pushPromise.reject(failObj); // TODO: uncomment if push() should resolve in case of error
+      if (this.opts.rejectErrorsOnPush) {
+        job.pushPromise.reject(failObj);
+      }
     } else {
       const doneObj = Object.assign(jobObj, { jobResult: jobResultOrError });
       this._done(doneObj);
@@ -161,6 +168,10 @@ class Qyu extends EventEmitter {
     } while (this._readyToRunJobs());
   }
 
+  /**
+   * emits drain and disables the rate limiter if there are no more jobs to process.
+   * @private
+   */
   _drainIfNoMore() {
     this.log.trace('Qyu:_drainIfNoMore() ', {
       started: this.started,
@@ -237,7 +248,3 @@ function qyu(opts) {
 }
 
 module.exports = qyu;
-
-// useful to get stack traces from UnhandledPromiseRejectionWarning errors:
-//process.on('unhandledRejection', r => console.error(r));
-// see https://github.com/nodejs/node/issues/9523#issuecomment-259303079

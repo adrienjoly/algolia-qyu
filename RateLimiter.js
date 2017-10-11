@@ -13,7 +13,6 @@ const MAKE_RECENT_JOB_CHECKER = () => {
  * Counts jobs per second to provide stats and commit to rating limit.
  * @fires RateLimiter#stats
  * @fires RateLimiter#drain
- * @fires RateLimiter#avail
  */
 class RateLimiter extends EventEmitter {
 
@@ -23,7 +22,6 @@ class RateLimiter extends EventEmitter {
    * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
-
    */
   constructor(opts) {
     super(opts);
@@ -41,7 +39,6 @@ class RateLimiter extends EventEmitter {
    * @private
    */
   _cleanRecentJobs() {
-    //console.log(now, 'cleaned', this.recentJobs.filter(date => now - date <= ONE_SECOND));
     return this.recentJobs.filter(MAKE_RECENT_JOB_CHECKER());
   }
 
@@ -118,9 +115,10 @@ class RateLimiter extends EventEmitter {
   canRunMore() {
     if (this.opts.rateLimit === null) {
       return this.running === 0; // run jobs sequentially, without applying rate limit
+    } else {
+      const nbJobsEndedDuringLastSecond = this._cleanRecentJobs().length;
+      return this.running + nbJobsEndedDuringLastSecond < this.opts.rateLimit;
     }
-    const nbJobsEndedDuringLastSecond = this._cleanRecentJobs().length;
-    return this.running + nbJobsEndedDuringLastSecond < this.opts.rateLimit;
   }
 
   /**
