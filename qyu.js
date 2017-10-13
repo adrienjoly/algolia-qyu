@@ -35,7 +35,7 @@ class Qyu extends EventEmitter {
    * @param {number} opts.rateLimit - Maximum number of jobs to be run per second. If `null`, jobs will be run sequentially.
    * @param {number} opts.statsInterval - interval for emitting `stats`, in ms
    * @param {SimpleNodeLogger} opts.log - instance of simple-node-logger (optional)
-   * @param {boolean} rejectErrorsOnPush - if true, push()'s premise will reject in case of job error
+   * @param {boolean} opts.rejectErrorsOnPush - if true, push()'s premise will reject in case of job error
    */
   constructor(opts) {
     super(opts);
@@ -146,7 +146,6 @@ class Qyu extends EventEmitter {
       readyToRunJobs
     });
     if (readyToRunJobs) {
-      //this.rateLimiter.toggle(true); // necessary for jobs pushed after drain
       const priority = Math.min.apply(Math, this.jobs.map(job => job.opts.priority));
       const job = this.jobs.find(job => job.opts.priority === priority);
       this.jobs = this.jobs.filter(j => j.id !== job.id); // remove job from queue
