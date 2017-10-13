@@ -59,47 +59,36 @@
                   
                   
                   
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'>Events</li>
+                      
+                        <li><a
+                          href='#qyueventstats'
+                          class='regular pre-open'>
+                          ⓔ stats
+                        </a></li>
+                      
+                        <li><a
+                          href='#qyueventerror'
+                          class='regular pre-open'>
+                          ⓔ error
+                        </a></li>
+                      
+                        <li><a
+                          href='#qyueventdone'
+                          class='regular pre-open'>
+                          ⓔ done
+                        </a></li>
+                      
+                        <li><a
+                          href='#qyueventdrain'
+                          class='regular pre-open'>
+                          ⓔ drain
+                        </a></li>
+                      
+                    </ul>
+                  
                 </div>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#eventqyustats'
-                  class="">
-                  Qyu#stats
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#eventqyuerror'
-                  class="">
-                  Qyu#error
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#eventqyudone'
-                  class="">
-                  Qyu#done
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#eventqyudrain'
-                  class="">
-                  Qyu#drain
-                  
-                </a>
                 
                 </li>
               
@@ -145,17 +134,24 @@
                   
                   
                   
-                </div>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#eventratelimiterstats'
-                  class="">
-                  RateLimiter#stats
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'>Events</li>
+                      
+                        <li><a
+                          href='#ratelimitereventstats'
+                          class='regular pre-open'>
+                          ⓔ stats
+                        </a></li>
+                      
+                        <li><a
+                          href='#ratelimitereventdrain'
+                          class='regular pre-open'>
+                          ⓔ drain
+                        </a></li>
+                      
+                    </ul>
                   
-                </a>
+                </div>
                 
                 </li>
               
@@ -446,28 +442,25 @@
   
 
   
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+    <div class='py1 quiet mt1 prose-big'>Events</div>
+    <div class="clearfix">
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='eventqyustats'>
-      Qyu#stats
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='qyueventstats'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>stats</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Fired every <code>opts.statsInterval</code> milliseconds, to tell how many jobs are processed per second.</p>
 
 
-  <div class='pre p1 fill-light mt0'>Qyu#stats</div>
+  <div class='pre p1 fill-light mt0'>stats</div>
   
   
 
@@ -507,26 +500,25 @@
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='eventqyuerror'>
-      Qyu#error
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='qyueventerror'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>error</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Fired every time a job fails by throwing an error.</p>
 
 
-  <div class='pre p1 fill-light mt0'>Qyu#error</div>
+  <div class='pre p1 fill-light mt0'>error</div>
   
   
 
@@ -573,26 +565,25 @@
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='eventqyudone'>
-      Qyu#done
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='qyueventdone'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>done</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Fired every time a job's execution has ended succesfully.</p>
 
 
-  <div class='pre p1 fill-light mt0'>Qyu#done</div>
+  <div class='pre p1 fill-light mt0'>done</div>
   
   
 
@@ -646,26 +637,25 @@
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='eventqyudrain'>
-      Qyu#drain
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='qyueventdrain'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>drain</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Fired when no more jobs are to be run.</p>
 
 
-  <div class='pre p1 fill-light mt0'>Qyu#drain</div>
+  <div class='pre p1 fill-light mt0'>drain</div>
   
   
 
@@ -689,6 +679,14 @@
   
 
   
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 </section>
@@ -963,28 +961,25 @@
   
 
   
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+    <div class='py1 quiet mt1 prose-big'>Events</div>
+    <div class="clearfix">
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='eventratelimiterstats'>
-      RateLimiter#stats
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='ratelimitereventstats'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>stats</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Fired every <code>opts.statsInterval</code> milliseconds, to tell how many jobs are processed per second.</p>
 
 
-  <div class='pre p1 fill-light mt0'>RateLimiter#stats</div>
+  <div class='pre p1 fill-light mt0'>stats</div>
   
   
 
@@ -1020,6 +1015,60 @@
   
 
   
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='ratelimitereventdrain'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>drain</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Fired every when RateLimiter is not running any jobs.</p>
+
+
+  <div class='pre p1 fill-light mt0'>drain</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 </section>

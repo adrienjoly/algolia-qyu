@@ -11,8 +11,8 @@ const MAKE_RECENT_JOB_CHECKER = () => {
 
 /**
  * Counts jobs per second to provide stats and commit to rating limit.
- * @fires RateLimiter#stats
- * @fires RateLimiter#drain
+ * @fires stats
+ * @fires drain
  */
 class RateLimiter extends EventEmitter {
 
@@ -58,7 +58,8 @@ class RateLimiter extends EventEmitter {
     this.log.trace('RateLimiter ⚡️ stats');
     /**
      * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
-     * @event RateLimiter#stats
+     * @event stats
+     * @memberof RateLimiter
      * @type {object}
      * @property {number} nbJobsPerSecond - number of jobs that are processed per second
      */
@@ -104,6 +105,11 @@ class RateLimiter extends EventEmitter {
     this.log.trace('RateLimiter:jobEnded => running: ', this.running || '0');
     if (this.running === 0) {
       this.log.trace('RateLimiter ⚡️ drain');
+      /**
+       * Fired every when RateLimiter is not running any jobs.
+       * @event drain
+       * @memberof RateLimiter
+       */
       this.emit('drain');
     }
   }

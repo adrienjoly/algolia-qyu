@@ -22,10 +22,10 @@ var nextJobId = 0; // global job counter, used to generate unique ids
 
 /**
  * Holds, controls and reports on execution of a queue of asynchronous jobs.
- * @fires Qyu#done
- * @fires Qyu#error
- * @fires Qyu#drain
- * @fires Qyu#stats
+ * @fires done
+ * @fires error
+ * @fires drain
+ * @fires stats
  */
 class Qyu extends EventEmitter {
 
@@ -49,7 +49,8 @@ class Qyu extends EventEmitter {
       this.log.trace('Qyu ⚡️ stats ', stats);
       /**
        * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
-       * @event Qyu#stats
+       * @event stats
+       * @memberof Qyu
        * @type {object}
        * @property {number} nbJobsPerSecond - number of jobs that are processed per second
        */
@@ -69,7 +70,8 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu ⚡️ error ', {jobId, error});
     /**
      * Fired every time a job fails by throwing an error.
-     * @event Qyu#error
+     * @event error
+     * @memberof Qyu
      * @type {Object}
      * @property {number} jobId - identifier of the job that throwed the error
      * @property {Error} error - error object throwed by the job
@@ -89,7 +91,8 @@ class Qyu extends EventEmitter {
     this.log.trace('Qyu ⚡️ done ', res);
     /**
      * Fired every time a job's execution has ended succesfully.
-     * @event Qyu#done
+     * @event done
+     * @memberof Qyu
      * @type {object}
      * @property {number} jobId - identifier of the job which execution ended
      * @property {*} jobResult - return value of the job function
@@ -181,7 +184,8 @@ class Qyu extends EventEmitter {
       this.log.trace('Qyu ⚡️ drain');
       /**
        * Fired when no more jobs are to be run.
-       * @event Qyu#drain
+       * @event drain
+       * @memberof Qyu
        */
       this.emit('drain');
       this.rateLimiter.toggle(false);
