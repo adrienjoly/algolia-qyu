@@ -7,7 +7,8 @@
     "nodejs": ">=7.6"
   },
   "scripts": {
-    "generate-doc": "jsdoc qyu.js -d docs",
+    "generate-doc": "documentation build qyu.js -f html -o docs",
+    "generate-doc-md": "documentation build qyu.js -f md -o docs.md",
     "watch-logfile": "tail -f qyu.log & tail -f qyu-tests.log &",
     "test-with-traces": "node test.js &>qyu.log && TRACES=true mocha &>qyu-tests.log",
     "test": "mocha"
@@ -19,7 +20,7 @@
   "author": "Adrien Joly",
   "license": "ISC",
   "devDependencies": {
-    "jsdoc": "^3.5.5",
+    "documentation": "^5.3.3",
     "mocha": "^4.0.1",
     "simple-node-logger": "^0.93.30"
   }

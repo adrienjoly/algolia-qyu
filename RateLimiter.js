@@ -58,7 +58,7 @@ class RateLimiter extends EventEmitter {
     this.log.trace('RateLimiter ⚡️ stats');
     /**
      * Fired every `opts.statsInterval` milliseconds, to tell how many jobs are processed per second.
-     * @event Qyu#stats
+     * @event RateLimiter#stats
      * @type {object}
      * @property {number} nbJobsPerSecond - number of jobs that are processed per second
      */
